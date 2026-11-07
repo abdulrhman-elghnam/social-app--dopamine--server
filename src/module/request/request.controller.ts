@@ -4,9 +4,9 @@ import type { NextFunction, Request, Response, Router as RouterType } from 'expr
 import { authGuard } from '../../dep/guard/auth.guard.js';
 import { utilService } from '../../dep/service/util.service.js';
 import { TokenTypeEnum } from '../../dep/value/security.enum.js';
-import { followService } from './follow.service.js';
+import { requestService } from './request.service.js';
 
-class FollowController {
+class RequestController {
   public readonly route: RouterType;
 
   constructor() {
@@ -23,7 +23,7 @@ class FollowController {
       '/requests',
       authGuard.check(TokenTypeEnum.ACCESS),
       utilService.responseFormatter({
-        handler: async (req: Request) => followService.getRequests(req.payload as JwtPayload),
+        handler: async (req: Request) => requestService.getRequests(req.payload as JwtPayload),
       })
     );
 
@@ -32,7 +32,7 @@ class FollowController {
       authGuard.check(TokenTypeEnum.ACCESS),
       utilService.responseFormatter({
         handler: async (req: Request) =>
-          followService.acceptRequest(
+          requestService.acceptRequest(
             Array.isArray(req.params['requestId'])
               ? (req.params['requestId'][0] ?? '')
               : (req.params['requestId'] ?? ''),
@@ -46,7 +46,7 @@ class FollowController {
       authGuard.check(TokenTypeEnum.ACCESS),
       utilService.responseFormatter({
         handler: async (req: Request) =>
-          followService.rejectRequest(
+          requestService.rejectRequest(
             Array.isArray(req.params['requestId'])
               ? (req.params['requestId'][0] ?? '')
               : (req.params['requestId'] ?? ''),
@@ -60,7 +60,7 @@ class FollowController {
       authGuard.check(TokenTypeEnum.ACCESS),
       utilService.responseFormatter({
         handler: async (req: Request, _res: Response, _next: NextFunction) =>
-          followService.deleteRequest(
+          requestService.deleteRequest(
             Array.isArray(req.params['requestId'])
               ? (req.params['requestId'][0] ?? '')
               : (req.params['requestId'] ?? ''),
@@ -71,4 +71,4 @@ class FollowController {
   }
 }
 
-export const followController = new FollowController();
+export const requestController = new RequestController();

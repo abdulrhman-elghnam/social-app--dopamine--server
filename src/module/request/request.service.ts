@@ -7,7 +7,7 @@ import { followRepository } from '../../db/repo/follow.repository.js';
 import { followRequestRepository } from '../../db/repo/friend-request.repository.js';
 import { userRepository } from '../../db/repo/user.repository.js';
 
-class FollowService {
+class RequestService {
   private async getReceivedRequest(requestId: string, userId: string) {
     const request = await followRequestRepository.findOne({
       filter: {
@@ -123,4 +123,4 @@ class FollowService {
   };
 }
 
-export const followService = new FollowService();
+export const requestService = new RequestService();
