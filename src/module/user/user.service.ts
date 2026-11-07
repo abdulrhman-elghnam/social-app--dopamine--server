@@ -60,6 +60,47 @@ class UserService {
     };
   }
 
+  async changeCoverImage(file: Express.Multer.File, payload: JwtPayload): Promise<IHandlerResult> {
+    const user = await userRepository.findById(utilService.toObjectId(payload.sub as string));
+
+    if (!user) {
+      throw new NotFoundException('User not found', { messageCode: 404 });
+    }
+
+    user.coverImage = file.path;
+    await user.save();
+
+    return {
+      messageCode: 200,
+      message: 'Cover image updated successfully',
+      data: {
+        coverImage: user.coverImage,
+      },
+    };
+  }
+
+  async updateBio(
+    { bio }: z.infer<ReturnType<UserDTO['bioUpdateDTO']>['body']>,
+    payload: JwtPayload
+  ): Promise<IHandlerResult> {
+    const user = await userRepository.findById(utilService.toObjectId(payload.sub as string));
+
+    if (!user) {
+      throw new NotFoundException('User not found', { messageCode: 404 });
+    }
+
+    user.bio = bio;
+    await user.save();
+
+    return {
+      messageCode: 200,
+      message: 'Bio updated successfully',
+      data: {
+        bio: user.bio,
+      },
+    };
+  }
+
   async search(search: string, page = 1, size = 10): Promise<IHandlerResult> {
     const result = await userRepository.searchUsers({
       search,

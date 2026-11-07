@@ -17,6 +17,14 @@ export class UserDTO {
       query: z.object({}),
     };
   };
+
+  bioUpdateDTO = (_language: ApiLanguage) => ({
+    body: z.object({
+      bio: z.string().trim().max(500),
+    }),
+    params: z.object({}),
+    query: z.object({}),
+  });
 }
 
 export const userDTO = new UserDTO();

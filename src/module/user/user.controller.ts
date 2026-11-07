@@ -9,6 +9,8 @@ import { utilService } from '../../dep/service/util.service.js';
 import { userRepository } from '../../db/repo/user.repository.js';
 import { uploadService, fileFieldValidation } from '../../dep/service/upload.service.js';
 import { uploadPipe } from '../../dep/pipe/upload.pipe.js';
+import { validationPipe } from '../../dep/pipe/validation.pipe.js';
+import { userDTO } from './dto/user.dto.js';
 
 class UserController {
   public readonly route: RouterType;
@@ -72,6 +74,43 @@ class UserController {
             req.file as Express.Multer.File,
             req.payload as JwtPayload
           );
+        },
+      })
+    );
+
+    this.route.put(
+      '/change-cover-image',
+      authGuard.check(TokenTypeEnum.ACCESS),
+      roleGuard.access([SystemRoleEnum.USER]),
+      uploadPipe.uploadMiddleware({
+        multerMiddleware: uploadService
+          .localFileUpload({
+            maxFileSize: 5,
+            validation: fileFieldValidation.image,
+            customPath: 'cover-images',
+          })
+          .single('coverImage'),
+        customPath: 'cover-images',
+        validation: fileFieldValidation.image,
+      }),
+      utilService.responseFormatter({
+        handler: async (req: Request) => {
+          return await userService.changeCoverImage(
+            req.file as Express.Multer.File,
+            req.payload as JwtPayload
+          );
+        },
+      })
+    );
+
+    this.route.put(
+      '/change-bio',
+      authGuard.check(TokenTypeEnum.ACCESS),
+      roleGuard.access([SystemRoleEnum.USER]),
+      validationPipe.schema(userDTO.bioUpdateDTO),
+      utilService.responseFormatter({
+        handler: async (req: Request) => {
+          return await userService.updateBio(req.body, req.payload as JwtPayload);
         },
       })
     );
