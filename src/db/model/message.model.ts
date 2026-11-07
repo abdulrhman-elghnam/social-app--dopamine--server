@@ -1,8 +1,5 @@
 import { model, Schema, HydratedDocument } from 'mongoose';
-import {
-  MediaTypeEnum,
-  MessageTypeEnum,
-} from '../../dep/value/database.enum.js';
+import { MediaTypeEnum, MessageTypeEnum } from '../../dep/value/database.enum.js';
 import type { IMessage } from '../../dep/interface/database.interface.js';
 
 const messageMediaSchema = new Schema(
@@ -45,14 +42,18 @@ const messageSchema = new Schema<IMessage>(
       type: Schema.Types.ObjectId,
       ref: 'Message',
     },
-    readBy: [{
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    }],
-    deliveredTo: [{
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    }],
+    readBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    deliveredTo: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
     editedAt: Date,
     deletedAt: Date,
   },

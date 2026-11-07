@@ -20,6 +20,7 @@ import {
   UserPrivacyControllerEnum,
 } from '../../dep/value/database.enum.js';
 import { SystemRoleEnum as TokenRoleEnum } from '../../dep/value/security.enum.js';
+import type { HUserDocument } from '../../db/model/user.model.js';
 
 export class AuthService {
   constructor() {}
@@ -41,7 +42,7 @@ export class AuthService {
         lastName,
         username: payload.username,
         email,
-        password: await securityService.hash(payload.password),
+        password: payload.password,
         ...(payload.phoneNumber ? { phone: payload.phoneNumber } : {}),
         ...(payload.DOB ? { DOB: new Date(payload.DOB) } : {}),
         gender: payload.gender === 'MALE' ? GenderEnum.MALE : GenderEnum.FEMALE,
@@ -71,11 +72,18 @@ export class AuthService {
     payload: z.infer<ReturnType<AuthDTO['loginDTO']>['body']>,
     issuer: string
   ): Promise<IHandlerResult> => {
-    const user = await userRepository.findOne({
+    const user = (await userRepository.findOne({
       filter: { email: payload.email.toLowerCase(), isActive: true },
-      options: { select: { password: 1 } },
-    });
-    if (!user?.password || !(await securityService.compare(payload.password, user.password))) {
+      options: { select: { password: 1, isEmailVerified: 1 } },
+    })) as HUserDocument | null;
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials', { messageCode: 301 });
+    }
+    if (
+      !user?.password ||
+      !(await securityService.compare(payload.password, user.password as string))
+    ) {
       throw new UnauthorizedException('Invalid credentials', { messageCode: 301 });
     }
     if (!user.isEmailVerified) {
@@ -159,16 +167,8 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not found', { messageCode: 401 });
     }
-
-    await userRepository.findOneAndUpdate({
-      filter: { email },
-      data: {
-        $set: {
-          password: payload.password,
-          changeCredentialsTime: new Date(),
-        },
-      },
-    });
+    user.password = payload.password;
+    await user.save();
 
     await tokenService.logout(user._id ?? '');
     await cacheService.deleteCache(RedisKeys.otpKey(email));
@@ -214,6 +214,14 @@ export class AuthService {
   logout = async (userId: string): Promise<IHandlerResult> => {
     await tokenService.logout(userId);
     return { messageCode: 106 };
+  };
+
+  rotateToken = async (
+    payload: { refreshToken: string },
+    issuer: string
+  ): Promise<IHandlerResult> => {
+    const credentials = await tokenService.rotateRefreshToken(payload.refreshToken, issuer);
+    return { messageCode: 309, data: credentials };
   };
 }
 

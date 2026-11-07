@@ -21,7 +21,4 @@ commentLikeSchema.index({ user: 1, comment: 1 }, { unique: true });
 commentLikeSchema.index({ comment: 1, createdAt: -1 });
 
 export type HCommentLikeDocument = HydratedDocument<ICommentLike>;
-export const CommentLikeModel = model<ICommentLike>(
-  'CommentLike',
-  commentLikeSchema
-);
+export const CommentLikeModel = model<ICommentLike>('CommentLike', commentLikeSchema);

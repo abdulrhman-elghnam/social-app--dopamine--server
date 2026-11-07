@@ -7,6 +7,16 @@ import { ApiLanguage } from '../../../dep/value/system.enum.js';
 export class AuthDTO {
   constructor() {}
 
+  refreshTokenDTO = (language: ApiLanguage) => {
+    return {
+      body: z.object({
+        refreshToken: z.string().trim().min(1),
+      }),
+      params: z.object({}),
+      query: z.object({}),
+    };
+  };
+
   loginDTO = (language: ApiLanguage) => {
     const t = (code: number) => languageService.chooseLanguage(language, code);
 

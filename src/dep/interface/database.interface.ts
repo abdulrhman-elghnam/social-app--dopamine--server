@@ -1,8 +1,7 @@
-
 import { Types } from 'mongoose';
 
 import {
-    ConversationMemberRoleEnum,
+  ConversationMemberRoleEnum,
   FollowRequestStatusEnum,
   GenderEnum,
   MediaTypeEnum,

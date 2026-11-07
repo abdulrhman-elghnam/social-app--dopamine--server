@@ -1,0 +1,17 @@
+@Host = http://127.0.0.1:9090
+@AcceptLanguage = en
+
+###
+put {{Host}}/user/change-privacy
+Content-Type: application/json
+Accept-Language: {{AcceptLanguage}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YWVmNzNkYTYxZWE5ODExNjIxMDdlOTMiLCJpYXQiOjE3OTQwODE2MTEsImV4cCI6MTc5NDA4MjUxMSwiYXVkIjpbIkFDQ0VTUyIsIlVTRVIiXSwiaXNzIjoiaHR0cDovLzEyNy4wLjAuMTo5MDkwIiwianRpIjoiNmRkNGE3ZjctOTNhYy00ZGVhLWEzNDgtZjUxMzcyNzRkZmMxIn0.Swokn0ugG5o3X782eXnUCxv2aY9nS9yDRFJwiCoCSyI
+
+{
+    "action" : "private"
+}
+
+###
+get {{Host}}/user/search/john/1/10
+Accept-Language: {{AcceptLanguage}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YWVmNzNkYTYxZWE5ODExNjIxMDdlOTMiLCJpYXQiOjE3OTQwODE2MTEsImV4cCI6MTc5NDA4MjUxMSwiYXVkIjpbIkFDQ0VTUyIsIlVTRVIiXSwiaXNzIjoiaHR0cDovLzEyNy4wLjAuMTo5MDkwIiwianRpIjoiNmRkNGE3ZjctOTNhYy00ZGVhLWEzNDgtZjUxMzcyNzRkZmMxIn0.Swokn0ugG5o3X782eXnUCxv2aY9nS9yDRFJwiCoCSyI

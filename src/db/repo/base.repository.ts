@@ -323,8 +323,8 @@ export abstract class DatabaseRepository<T> {
     const update = this.addVersionIncrement(data);
 
     return this.model
-      .findOneAndReplace(filter, update, {
-        new: true,
+      .findOneAndUpdate(filter, update, {
+        returnDocument: 'after',
         runValidators: true,
         ...options,
       })
@@ -340,7 +340,7 @@ export abstract class DatabaseRepository<T> {
 
     return this.model
       .findByIdAndUpdate(id, update, {
-        new: true,
+        returnDocument: 'after',
         runValidators: true,
         ...options,
       })

@@ -85,6 +85,14 @@ export class AuthenticationController {
         handler: (req: Request) => authService.changePassword(req.body),
       })
     );
+
+    this.route.post(
+      '/rotate-token',
+      validationPipe.schema(authDTO.refreshTokenDTO),
+      utilService.responseFormatter({
+        handler: (req: Request) => authService.rotateToken(req.body, utilService.issuer(req)),
+      })
+    );
   }
 }
 

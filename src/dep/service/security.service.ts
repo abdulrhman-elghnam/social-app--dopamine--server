@@ -62,6 +62,8 @@ export class SecurityService {
 
   async hash(plainText: string): Promise<string> {
     const salt = await bcrypt.genSalt(this.hashSaltRounds);
+    console.log(this.hashSaltRounds);
+
     return bcrypt.hash(plainText, salt);
   }
 

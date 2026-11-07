@@ -36,7 +36,4 @@ const notificationSchema = new Schema<INotification>(
 notificationSchema.index({ recipient: 1, isRead: 1, createdAt: -1 });
 
 export type HNotificationDocument = HydratedDocument<INotification>;
-export const NotificationModel = model<INotification>(
-  'Notification',
-  notificationSchema
-);
+export const NotificationModel = model<INotification>('Notification', notificationSchema);

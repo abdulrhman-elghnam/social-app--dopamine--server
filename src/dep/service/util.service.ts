@@ -3,6 +3,7 @@ import type { ErrorRequestHandler, NextFunction, Request, Response } from 'expre
 import { languageService } from './language.service.js';
 import { IError } from '../exception/app.exception.js';
 import { randomInt } from 'crypto';
+import { Types } from 'mongoose';
 
 export interface IHandlerResult {
   status?: number;
@@ -25,6 +26,9 @@ export class UtilService {
 
   createOtp = () => randomInt(100000, 1000000);
 
+  toObjectId = (id: string) => {
+    return new Types.ObjectId(id);
+  };
   issuer = (req: Request) => `${req.protocol}://${req.host}`;
   splitFullName = (fullName: string) => {
     const [firstName, ...rest] = fullName.trim().split(/\s+/);

@@ -27,7 +27,4 @@ followRequestSchema.index({ requester: 1, recipient: 1 }, { unique: true });
 followRequestSchema.index({ recipient: 1, status: 1 });
 
 export type HFollowRequestDocument = HydratedDocument<IFollowRequest>;
-export const FollowRequestModel = model<IFollowRequest>(
-  'FollowRequest',
-  followRequestSchema
-);
+export const FollowRequestModel = model<IFollowRequest>('FollowRequest', followRequestSchema);

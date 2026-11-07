@@ -31,7 +31,6 @@ export enum MediaTypeEnum {
   TEXT = 'text',
 }
 
-
 export enum UserPrivacyControllerEnum {
   private = 'private',
   public = 'public',

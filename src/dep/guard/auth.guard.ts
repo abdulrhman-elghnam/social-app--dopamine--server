@@ -1,6 +1,6 @@
 import { UnauthorizedException } from '../exception/main.exception.js';
 import type { Request, Response, NextFunction } from 'express';
-import { TokenTypeEnum } from '../value/security.enum.js';
+import { SystemRoleEnum, TokenTypeEnum } from '../value/security.enum.js';
 import { tokenService } from '../service/token.service.js';
 
 class AuthGuard {
@@ -15,9 +15,10 @@ class AuthGuard {
         });
       }
 
-      const { user, payload } = await tokenService.decodeToken(authorization, tokenType);
-
-      req.user = user;
+      const payload = await tokenService.decodeToken(authorization, tokenType);
+      req.user = {
+        role: payload.aud?.[1] as SystemRoleEnum,
+      };
       req.payload = payload;
 
       next();

@@ -10,6 +10,7 @@ import { configService } from './dep/service/config.service.js';
 import { authenticationController } from './module/auth/auth.controller.js';
 import { cacheService } from './dep/service/cache.service.js';
 import { limiterGuard } from './dep/guard/limiter.guard.js';
+import { userController } from './module/user/user.controller.js';
 
 const app: Application = express();
 
@@ -25,6 +26,7 @@ app.use(
 );
 app.use('/assets', express.static(fileURLToPath(new URL('../assets', import.meta.url))));
 app.use('/authentication', authenticationController.route);
+app.use('/user', userController.route);
 app.use(appController.route);
 app.use(utilService.globalErrorHandling);
 

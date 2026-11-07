@@ -1,3 +1,4 @@
+import { JwtPayload } from 'jsonwebtoken';
 import { SystemRoleEnum } from '../value/security.enum.js';
 
 declare global {
@@ -10,14 +11,10 @@ declare global {
         file: unknown;
         files: unknown;
       };
-      file?: unknown;
-      files?: unknown;
       user?: {
         role: SystemRoleEnum;
       };
-      payload?: {
-        [key: string]: unknown;
-      };
+      payload?: JwtPayload;
     }
   }
 }

@@ -155,6 +155,11 @@ export const generalValidationFields = {
       .string({ message: t(234) })
       .trim()
       .min(1, { message: t(234) }),
+
+  privacyAction: (t: Translate) =>
+    z.enum(['public', 'private'], {
+      message: t(237),
+    }),
 };
 
 export const validationPipe = new ValidationPipe();

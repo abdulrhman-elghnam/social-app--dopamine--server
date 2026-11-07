@@ -1,8 +1,5 @@
 import { model, Schema, HydratedDocument } from 'mongoose';
-import {
-  MediaTypeEnum,
-  PostVisibilityEnum,
-} from '../../dep/value/database.enum.js';
+import { MediaTypeEnum, PostVisibilityEnum } from '../../dep/value/database.enum.js';
 import type { IPost } from '../../dep/interface/database.interface.js';
 
 const mediaSchema = new Schema(

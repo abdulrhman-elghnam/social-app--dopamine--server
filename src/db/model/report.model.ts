@@ -1,8 +1,5 @@
 import { model, Schema, HydratedDocument } from 'mongoose';
-import {
-  ReportStatusEnum,
-  ReportTargetTypeEnum,
-} from '../../dep/value/database.enum.js';
+import { ReportStatusEnum, ReportTargetTypeEnum } from '../../dep/value/database.enum.js';
 import type { IReport } from '../../dep/interface/database.interface.js';
 
 const reportSchema = new Schema<IReport>(

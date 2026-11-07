@@ -3,11 +3,13 @@ import type { IConversation } from '../../dep/interface/database.interface.js';
 
 const conversationSchema = new Schema<IConversation>(
   {
-    participants: [{
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    }],
+    participants: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+      },
+    ],
     lastMessage: {
       type: Schema.Types.ObjectId,
       ref: 'Message',
@@ -19,10 +21,12 @@ const conversationSchema = new Schema<IConversation>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    admins: [{
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    }],
+    admins: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -30,7 +34,4 @@ const conversationSchema = new Schema<IConversation>(
 conversationSchema.index({ participants: 1, updatedAt: -1 });
 
 export type HConversationDocument = HydratedDocument<IConversation>;
-export const ConversationModel = model<IConversation>(
-  'Conversation',
-  conversationSchema
-);
+export const ConversationModel = model<IConversation>('Conversation', conversationSchema);

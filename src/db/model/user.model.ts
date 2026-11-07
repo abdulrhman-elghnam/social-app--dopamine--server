@@ -8,8 +8,9 @@ import {
 import type { IUser } from '../../dep/interface/database.interface.js';
 import { securityService } from '../../dep/service/security.service.js';
 
+export type HUserDocument = HydratedDocument<IUser>;
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<HUserDocument>(
   {
     firstName: { type: String, required: true, trim: true },
     lastName: { type: String, required: true, trim: true },
@@ -46,5 +47,4 @@ userSchema.pre('save', async function hashPassword() {
   }
 });
 
-export type HUserDocument = HydratedDocument<IUser>;
 export const UserModel = model<IUser>('User', userSchema);

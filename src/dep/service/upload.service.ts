@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { extname, resolve } from 'node:path';
 import type { NextFunction, Request, Response } from 'express';
 import multer from 'multer';
@@ -71,10 +71,16 @@ export class UploadService {
   };
 
   processFile = async ({ customPath = 'general', file, validation = [] }: ProcessFileOptions) => {
-    const result = await fileTypeFromBuffer(file.buffer);
+    const buffer = file.buffer ?? (await readFile(resolve(file.path)));
+    const result = await fileTypeFromBuffer(buffer);
 
     if (!result || !validation.includes(result.mime)) {
       throw invalidFormatError();
+    }
+
+    if (!file.buffer) {
+      file.path = file.path.replace(/\\/g, '/').replace(/^\.\//, '');
+      return file;
     }
 
     await mkdir(resolve(`./assets/${customPath}`), { recursive: true });

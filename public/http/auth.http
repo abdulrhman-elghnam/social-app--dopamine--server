@@ -7,7 +7,7 @@ Content-Type: application/json
 Accept-Language: {{AcceptLanguage}}
 
 {
-  "email": "user@example.com",
+  "email": "abdulrhman.mohamed.atya@gmail.com",
   "username": "test_user",
   "password": "Password1!",
   "confirmPassword": "Password1!",
@@ -23,8 +23,8 @@ Content-Type: application/json
 Accept-Language: {{AcceptLanguage}}
 
 {
-  "email": "user@example.com",
-  "otp": "123456"
+  "email": "abdulrhman.mohamed.atya@gmail.com",
+  "otp": "168891"
 }
 
 ### Login
@@ -33,8 +33,8 @@ Content-Type: application/json
 Accept-Language: {{AcceptLanguage}}
 
 {
-  "email": "user@example.com",
-  "password": "Password1!"
+  "email": "abdulrhman.mohamed.atya@gmail.com",
+  "password": "NewPassword1!"
 }
 
 ### Google sign in
@@ -52,7 +52,7 @@ Content-Type: application/json
 Accept-Language: {{AcceptLanguage}}
 
 {
-  "email": "user@example.com"
+  "email": "abdulrhman.mohamed.atya@gmail.com"
 }
 
 ### Verify password reset OTP
@@ -71,7 +71,7 @@ Content-Type: application/json
 Accept-Language: {{AcceptLanguage}}
 
 {
-  "email": "user@example.com",
+  "email": "abdulrhman.mohamed.atya@gmail.com",
   "password": "NewPassword1!",
   "confirmPassword": "NewPassword1!"
 }

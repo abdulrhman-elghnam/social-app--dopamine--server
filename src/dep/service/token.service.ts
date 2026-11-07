@@ -49,9 +49,17 @@ export class TokenService {
     return jwt.sign(payload, secret, options);
   }
 
+  private extractBearerToken(value: string): string {
+    const match = /^Bearer\s+([^\s]+)$/i.exec(value.trim());
+    if (!match?.[1]) {
+      throw new UnauthorizedException('Invalid authorization header');
+    }
+    return match[1];
+  }
+
   verify(token: string, secret: string): JwtPayload {
     try {
-      const payload = jwt.verify(token, secret);
+      const payload = jwt.verify(this.extractBearerToken(token), secret);
       return typeof payload === 'string' ? (JSON.parse(payload) as JwtPayload) : payload;
     } catch {
       throw new UnauthorizedException('Invalid or expired token');
@@ -60,6 +68,7 @@ export class TokenService {
 
   decode(token: string): JwtPayload {
     const payload = jwt.decode(token);
+
     if (!payload || typeof payload === 'string') {
       throw new BadRequestException('Invalid token payload');
     }
@@ -70,7 +79,8 @@ export class TokenService {
     token: string,
     expectedType: TokenTypeEnum = TokenTypeEnum.ACCESS
   ): Promise<JwtPayload> {
-    const claimed = this.decode(token);
+    const rawToken = this.extractBearerToken(token);
+    const claimed = this.decode(rawToken);
     if (!Array.isArray(claimed.aud) || claimed.aud.length !== 2) {
       throw new BadRequestException('Invalid token audience');
     }
@@ -90,6 +100,7 @@ export class TokenService {
     }
 
     const role = claimedRole as SystemRoleEnum;
+
     const verified = this.verify(token, this.getSecret(expectedType));
     const activeType = await cacheService.getCache<TokenTypeEnum>(
       RedisKeys.userToken(verified.sub ?? '', verified.jti ?? '')
@@ -161,7 +172,8 @@ export class TokenService {
     token: string,
     issuer: string
   ): Promise<{ access_token: string; refresh_token: string }> {
-    const decoded = await this.decodeToken(token, TokenTypeEnum.REFRESH);
+    const bearerToken = /^Bearer\s+/i.test(token.trim()) ? token.trim() : `Bearer ${token.trim()}`;
+    const decoded = await this.decodeToken(bearerToken, TokenTypeEnum.REFRESH);
     if (!decoded.jti || !decoded.exp || !decoded.sub) {
       throw new UnauthorizedException('Invalid refresh token');
     }
