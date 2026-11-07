@@ -78,5 +78,24 @@ class UserService {
       },
     };
   }
+
+  async suggest(payload: JwtPayload, page = 1, size = 10): Promise<IHandlerResult> {
+    const result = await userRepository.suggestUsers({
+      userId: payload.sub as string,
+      page,
+      size,
+    });
+
+    return {
+      messageCode: 200,
+      data: result.data,
+      meta: {
+        totalDocuments: result.totalDocuments,
+        totalPages: result.totalPages,
+        currentPage: result.currentPage,
+        pageSize: result.pageSize,
+      },
+    };
+  }
 }
 export const userService = new UserService();

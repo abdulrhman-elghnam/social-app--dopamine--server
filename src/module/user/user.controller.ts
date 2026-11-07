@@ -94,6 +94,23 @@ class UserController {
         },
       })
     );
+
+    this.route.get(
+      '/suggestions{/:page}{/:size}',
+      authGuard.check(TokenTypeEnum.ACCESS),
+      utilService.responseFormatter({
+        handler: async (req: Request) => {
+          const page = Number(req.params['page'] ?? 1);
+          const size = Number(req.params['size'] ?? 10);
+
+          return await userService.suggest(
+            req.payload as JwtPayload,
+            Number.isInteger(page) && page > 0 ? page : 1,
+            Number.isInteger(size) && size > 0 ? size : 10
+          );
+        },
+      })
+    );
   }
 }
 
