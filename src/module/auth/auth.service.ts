@@ -13,7 +13,12 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '../../dep/exception/main.exception.js';
-import { GenderEnum, ProviderEnum, SystemRoleEnum } from '../../dep/value/database.enum.js';
+import {
+  GenderEnum,
+  ProviderEnum,
+  SystemRoleEnum,
+  UserPrivacyControllerEnum,
+} from '../../dep/value/database.enum.js';
 import { SystemRoleEnum as TokenRoleEnum } from '../../dep/value/security.enum.js';
 
 export class AuthService {
@@ -44,6 +49,10 @@ export class AuthService {
         provider: ProviderEnum.LOCAL,
         isEmailVerified: false,
         isActive: true,
+        privacyController: UserPrivacyControllerEnum.public,
+        followersCount: 0,
+        followingCount: 0,
+        postsCount: 0,
       },
     });
 
@@ -107,6 +116,7 @@ export class AuthService {
           provider: ProviderEnum.GOOGLE,
           isEmailVerified: true,
           isActive: true,
+          privacyController: UserPrivacyControllerEnum.public,
           ...(account.picture ? { image: account.picture } : {}),
         },
       });

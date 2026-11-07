@@ -1,7 +1,13 @@
-import { model, Schema } from 'mongoose';
-import { GenderEnum, ProviderEnum, SystemRoleEnum } from '../../dep/value/database.enum.js';
+import { HydratedDocument, model, Schema } from 'mongoose';
+import {
+  GenderEnum,
+  ProviderEnum,
+  SystemRoleEnum,
+  UserPrivacyControllerEnum,
+} from '../../dep/value/database.enum.js';
 import type { IUser } from '../../dep/interface/database.interface.js';
 import { securityService } from '../../dep/service/security.service.js';
+
 
 const userSchema = new Schema<IUser>(
   {
@@ -20,6 +26,14 @@ const userSchema = new Schema<IUser>(
     image: String,
     coverImage: String,
     bio: String,
+    privacyController: {
+      type: String,
+      enum: UserPrivacyControllerEnum,
+      default: UserPrivacyControllerEnum.public,
+    },
+    followersCount: { type: Number, default: 0 },
+    followingCount: { type: Number, default: 0 },
+    postsCount: { type: Number, default: 0 },
     changeCredentialsTime: Date,
   },
   { timestamps: true }
@@ -32,24 +46,5 @@ userSchema.pre('save', async function hashPassword() {
   }
 });
 
-userSchema.pre('findOneAndUpdate', async function hashPasswordOnUpdate() {
-  const update = this.getUpdate() as Record<string, unknown> | undefined;
-  const password =
-    typeof update?.['password'] === 'string'
-      ? update['password']
-      : (update?.['$set'] as Record<string, unknown> | undefined)?.['password'];
-
-  if (typeof password === 'string') {
-    const hashedPassword = await securityService.hash(password);
-    if (update?.['$set'] !== undefined) {
-      const set = update['$set'] as Record<string, unknown>;
-      set['password'] = hashedPassword;
-      set['changeCredentialsTime'] = new Date();
-    } else if (update) {
-      update['password'] = hashedPassword;
-      update['changeCredentialsTime'] = new Date();
-    }
-  }
-});
-
+export type HUserDocument = HydratedDocument<IUser>;
 export const UserModel = model<IUser>('User', userSchema);

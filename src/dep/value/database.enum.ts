@@ -28,5 +28,44 @@ export enum NotificationTypeEnum {
 
 export enum MediaTypeEnum {
   IMAGE = 'image',
+  TEXT = 'text',
+}
+
+
+export enum UserPrivacyControllerEnum {
+  private = 'private',
+  public = 'public',
+}
+
+export enum FollowRequestStatusEnum {
+  PENDING = 'pending',
+  ACCEPTED = 'accepted',
+  REJECTED = 'rejected',
+}
+
+export enum MessageTypeEnum {
+  TEXT = 'text',
+  IMAGE = 'image',
+  VIDEO = 'video',
+  AUDIO = 'audio',
   FILE = 'file',
+}
+
+export enum ConversationMemberRoleEnum {
+  MEMBER = 'member',
+  ADMIN = 'admin',
+  OWNER = 'owner',
+}
+
+export enum ReportTargetTypeEnum {
+  USER = 'user',
+  POST = 'post',
+  COMMENT = 'comment',
+}
+
+export enum ReportStatusEnum {
+  PENDING = 'pending',
+  REVIEWED = 'reviewed',
+  RESOLVED = 'resolved',
+  REJECTED = 'rejected',
 }

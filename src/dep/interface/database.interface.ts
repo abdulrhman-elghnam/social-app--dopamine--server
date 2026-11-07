@@ -1,11 +1,19 @@
+
 import { Types } from 'mongoose';
+
 import {
+    ConversationMemberRoleEnum,
+  FollowRequestStatusEnum,
   GenderEnum,
   MediaTypeEnum,
+  MessageTypeEnum,
   NotificationTypeEnum,
   PostVisibilityEnum,
   ProviderEnum,
+  ReportStatusEnum,
+  ReportTargetTypeEnum,
   SystemRoleEnum,
+  UserPrivacyControllerEnum,
 } from '../value/database.enum.js';
 
 export interface IUser {
@@ -31,7 +39,15 @@ export interface IUser {
   coverImage?: string;
   bio?: string;
 
+  privacyController: UserPrivacyControllerEnum;
+
+  followersCount?: number;
+  followingCount?: number;
+  postsCount?: number;
+
+  lastSeenAt?: Date;
   changeCredentialsTime?: Date;
+  deletedAt?: Date;
 
   createdAt?: Date;
   updatedAt?: Date;
@@ -46,10 +62,31 @@ export interface IFollow {
   createdAt?: Date;
 }
 
-export interface IPostMedia {
+export interface IFollowRequest {
+  _id?: Types.ObjectId;
+
+  requester: Types.ObjectId;
+  recipient: Types.ObjectId;
+
+  status: FollowRequestStatusEnum;
+
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface IMedia {
   url: string;
+  type: MediaTypeEnum;
+
   publicId?: string;
-  type: MediaTypeEnum.IMAGE;
+
+  width?: number;
+  height?: number;
+
+  duration?: number;
+  size?: number;
+
+  thumbnailUrl?: string;
 }
 
 export interface IPost {
@@ -58,14 +95,18 @@ export interface IPost {
   author: Types.ObjectId;
 
   content?: string;
-  media: IPostMedia[];
+  media: IMedia[];
 
   visibility: PostVisibilityEnum;
 
   likesCount: number;
   commentsCount: number;
+  sharesCount: number;
 
   commentsEnabled: boolean;
+
+  editedAt?: Date;
+  deletedAt?: Date;
 
   createdAt?: Date;
   updatedAt?: Date;
@@ -86,10 +127,27 @@ export interface IComment {
   post: Types.ObjectId;
   author: Types.ObjectId;
 
+  parentComment?: Types.ObjectId;
+
   content: string;
+
+  likesCount: number;
+  repliesCount: number;
+
+  editedAt?: Date;
+  deletedAt?: Date;
 
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface ICommentLike {
+  _id?: Types.ObjectId;
+
+  user: Types.ObjectId;
+  comment: Types.ObjectId;
+
+  createdAt?: Date;
 }
 
 export interface ISavedPost {
@@ -101,19 +159,13 @@ export interface ISavedPost {
   createdAt?: Date;
 }
 
-export interface IStoryMedia {
-  url: string;
-  publicId?: string;
-  type: MediaTypeEnum.IMAGE;
-}
-
-export interface IStory {
+export interface IShare {
   _id?: Types.ObjectId;
 
-  author: Types.ObjectId;
-  media: IStoryMedia;
+  user: Types.ObjectId;
+  post: Types.ObjectId;
 
-  expiresAt: Date;
+  content?: string;
 
   createdAt?: Date;
 }
@@ -130,8 +182,65 @@ export interface INotification {
   comment?: Types.ObjectId;
 
   isRead: boolean;
+  readAt?: Date;
 
   createdAt?: Date;
+}
+
+export interface IStory {
+  _id?: Types.ObjectId;
+
+  author: Types.ObjectId;
+
+  media: IMedia[];
+
+  viewers: Types.ObjectId[];
+
+  expiresAt: Date;
+
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface IStoryView {
+  _id?: Types.ObjectId;
+
+  story: Types.ObjectId;
+  user: Types.ObjectId;
+
+  viewedAt?: Date;
+}
+
+export interface IBlock {
+  _id?: Types.ObjectId;
+
+  blocker: Types.ObjectId;
+  blocked: Types.ObjectId;
+
+  createdAt?: Date;
+}
+
+export interface IReport {
+  _id?: Types.ObjectId;
+
+  reporter: Types.ObjectId;
+
+  targetType: ReportTargetTypeEnum;
+
+  reportedUser?: Types.ObjectId;
+  post?: Types.ObjectId;
+  comment?: Types.ObjectId;
+
+  reason: string;
+  description?: string;
+
+  status: ReportStatusEnum;
+
+  reviewedBy?: Types.ObjectId;
+  reviewedAt?: Date;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IConversation {
@@ -146,14 +255,29 @@ export interface IConversation {
   groupName?: string;
   groupImage?: string;
 
+  createdBy?: Types.ObjectId;
+  admins?: Types.ObjectId[];
+
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface IMessageMedia {
-  url: string;
-  publicId?: string;
-  type: MediaTypeEnum;
+export interface IConversationMember {
+  _id?: Types.ObjectId;
+
+  conversation: Types.ObjectId;
+  user: Types.ObjectId;
+
+  role: ConversationMemberRoleEnum;
+
+  joinedAt: Date;
+
+  lastReadMessage?: Types.ObjectId;
+
+  isMuted: boolean;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IMessage {
@@ -163,9 +287,17 @@ export interface IMessage {
   sender: Types.ObjectId;
 
   content?: string;
-  media?: IMessageMedia;
+  media?: IMedia[];
+
+  type: MessageTypeEnum;
+
+  replyTo?: Types.ObjectId;
 
   readBy: Types.ObjectId[];
+  deliveredTo: Types.ObjectId[];
+
+  editedAt?: Date;
+  deletedAt?: Date;
 
   createdAt?: Date;
   updatedAt?: Date;
