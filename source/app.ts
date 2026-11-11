@@ -57,12 +57,14 @@ function trustProxySetting(): number | boolean {
 }
 
 function corsOptions(): CorsOptions {
-  const origins = (configService.get('CORS_ORIGINS') ?? configService.get('FRONTEND_URL') ?? '')
+  const explicit = configService.get('CORS_ORIGINS')?.trim();
+  const origins = (explicit || configService.get('FRONTEND_URL') || '')
     .split(',')
     .map((origin) => origin.trim().replace(/\/$/, ''))
     .filter(Boolean);
   return {
-    origin: isProduction ? origins : true,
+    // An explicit CORS_ORIGINS list applies everywhere; without one, development allows any origin.
+    origin: explicit || isProduction ? origins : true,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept-Language'],
     exposedHeaders: ['X-Response-Time', 'RateLimit', 'RateLimit-Policy', 'Retry-After'],
