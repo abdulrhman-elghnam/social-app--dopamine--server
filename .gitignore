@@ -149,3 +149,4 @@ storage/
 # Vercel
 .vercel
 vercel-static/
+.env*
