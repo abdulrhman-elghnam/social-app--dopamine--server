@@ -6,9 +6,14 @@
   "outputDirectory": "vercel-static",
   "functions": {
     "api/index.js": {
-      "includeFiles": "source/i18n/**",
+      "includeFiles": "{source/i18n/**,public/documentation/**,node_modules/swagger-ui-dist/**}",
       "maxDuration": 30
     }
   },
-  "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api"
+    }
+  ]
 }

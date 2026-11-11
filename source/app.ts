@@ -22,6 +22,7 @@ import { cacheService } from './dependency/service/cache.service.js';
 import { configService } from './dependency/service/config.service.js';
 import { databaseService } from './dependency/service/database.service.js';
 import { utilService } from './dependency/service/util.service.js';
+import { docsEnabled, documentationRouter } from './documentation.js';
 
 export const isProduction = configService.get('NODE_ENV') === 'production';
 
@@ -63,7 +64,6 @@ function corsOptions(): CorsOptions {
     .map((origin) => origin.trim().replace(/\/$/, ''))
     .filter(Boolean);
   return {
-    // An explicit CORS_ORIGINS list applies everywhere; without one, development allows any origin.
     origin: explicit || isProduction ? origins : true,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept-Language'],
@@ -86,6 +86,7 @@ export function createApp(): Application {
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok', uptime: Math.round(process.uptime()) });
   });
+  if (docsEnabled) app.use('/docs', documentationRouter());
   app.use(requireServices);
   app.use(rateLimits.global);
   app.use('/assets', express.static(resolve('assets'), { maxAge: isProduction ? '7d' : 0, fallthrough: true }));

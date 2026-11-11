@@ -8,5 +8,7 @@ distribution/
 vercel-static/
 
 # Local uploads and the manual request files (may contain test tokens).
+# public/documentation (Swagger + Postman) is deployed and served at /docs.
 assets/
-public/
+public/http/
+public/icon/
