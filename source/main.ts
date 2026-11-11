@@ -14,12 +14,18 @@ import { utilService } from './dependency/service/util.service.js';
 import { databaseService } from './dependency/service/database.service.js';
 import { cacheService } from './dependency/service/cache.service.js';
 import { configService } from './dependency/service/config.service.js';
+import { responseTimeMiddleware } from './dependency/middleware/response-time.middleware.js';
+import { maintenanceModeMiddleware } from './dependency/middleware/maintenance-mode.middleware.js';
+import { devPrintMiddleware } from './dependency/middleware/dev-print.middleware.js';
 
 const app: Application = express();
 
 app.set('trust proxy', true);
+app.use(responseTimeMiddleware.handle);
 app.use(express.json());
 app.use(helmet(), morgan('dev'));
+app.use(devPrintMiddleware.handle);
+app.use(maintenanceModeMiddleware.handle);
 app.use(
   limiterGuard.generateLimiter({
     limit: 100,

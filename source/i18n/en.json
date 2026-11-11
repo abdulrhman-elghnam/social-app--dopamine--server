@@ -29,6 +29,7 @@
   "128": "access denied",
   "129": "insufficient permissions",
   "130": "admin access required",
+  "131": "server is under maintenance, please try again later",
   "201": "validation failed",
   "202": "invalid input",
   "203": "invalid request body",
