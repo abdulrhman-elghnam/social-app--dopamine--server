@@ -10,7 +10,6 @@ export class NotificationRepository extends DatabaseRepository<INotification> {
     super(NotificationModel);
   }
 
-  /** The user's notifications, newest first, sender populated; optionally unread only. */
   async paginateFor(recipient: Types.ObjectId, page: number, size: number, unreadOnly = false) {
     return this.paginateLean<{ sender: AuthorCard }>({
       filter: { recipient, ...(unreadOnly ? { isRead: false } : {}) },
@@ -24,7 +23,6 @@ export class NotificationRepository extends DatabaseRepository<INotification> {
     return this.model.countDocuments({ recipient, isRead: false }).exec();
   }
 
-  /** Marks one of the user's notifications read; false when it doesn't exist / isn't theirs. */
   async markRead(notificationId: Types.ObjectId, recipient: Types.ObjectId): Promise<boolean> {
     const found = await this.findOne({ filter: { _id: notificationId, recipient }, options: { select: '_id', lean: true } });
     if (!found) return false;

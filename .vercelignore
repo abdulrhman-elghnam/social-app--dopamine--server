@@ -1,0 +1,12 @@
+# Secrets: set environment variables in the Vercel dashboard instead.
+.env
+.env.*
+
+# Rebuilt on Vercel / not part of the deployment.
+node_modules/
+distribution/
+vercel-static/
+
+# Local uploads and the manual request files (may contain test tokens).
+assets/
+public/

@@ -1,59 +1,47 @@
-import type { Request } from 'express';
-import geoip from 'geoip-lite';
+import type { Request, RequestHandler } from 'express';
 import { ipKeyGenerator, rateLimit, type Options, type Store } from 'express-rate-limit';
+import { TooManyRequestsException } from '../exception/main.exception.js';
 import { cacheService } from '../service/cache.service.js';
 
 interface LimiterOptions {
-  ttl?: number;
-  message?: string;
-  status?: number;
-  legacyHeaders?: boolean;
-  standardHeaders?: Options['standardHeaders'];
+  name: string;
+  limit: number;
+  windowMinutes: number;
   skipSuccessfulRequests?: boolean;
-  skipFailedRequests?: boolean;
-  limit?: number;
+  messageCode?: number;
+  standardHeaders?: Options['standardHeaders'];
 }
-
-const fromWhere = (ip: string) => {
-  try {
-    return geoip.lookup(ip);
-  } catch (error) {
-    console.error('GeoIP lookup error:', error);
-    return null;
-  }
-};
-
-const createRedisStore = (): Store => {
-  let windowMs = 0;
+const createRedisStore = (prefix: string): Store => {
+  let windowSeconds = 60;
+  const redisKey = (key: string) => `rate-limit:${prefix}:${key}`;
 
   return {
+    prefix,
+
     init(options) {
-      windowMs = options.windowMs;
+      windowSeconds = Math.ceil(options.windowMs / 1000);
     },
 
     async increment(key) {
-      const totalHits = await cacheService.increment(key);
+      const k = redisKey(key);
+      const totalHits = await cacheService.increment(k);
 
-      if (totalHits === 1) {
-        await cacheService.expire(key, Math.ceil(windowMs / 1000));
+      let ttl = await cacheService.timeToLive(k);
+      if (totalHits === 1 || ttl < 0) {
+        await cacheService.expire(k, windowSeconds);
+        ttl = windowSeconds;
       }
 
-      const ttl = await cacheService.timeToLive(key);
-
-      return {
-        totalHits,
-        resetTime: new Date(Date.now() + Math.max(ttl, 0) * 1000),
-      };
+      return { totalHits, resetTime: new Date(Date.now() + ttl * 1000) };
     },
 
     async decrement(key) {
-      if (await cacheService.exists(key)) {
-        await cacheService.decrement(key);
-      }
+      const k = redisKey(key);
+      if (await cacheService.exists(k)) await cacheService.decrement(k);
     },
 
     async resetKey(key) {
-      await cacheService.deleteCache(key);
+      await cacheService.deleteCache(redisKey(key));
     },
   };
 };
@@ -64,44 +52,32 @@ export class LimiterGuard {
   constructor() {}
 
   generateLimiter = ({
-    ttl = 15,
-    message = 'Too Many Requests',
-    status = 429,
-    legacyHeaders = false,
-    standardHeaders = 'draft-8',
+    name,
+    limit,
+    windowMinutes,
     skipSuccessfulRequests = false,
-    skipFailedRequests = false,
-    limit = 1000,
-  }: LimiterOptions = {}) =>
+    messageCode = 114,
+    standardHeaders = 'draft-8',
+  }: LimiterOptions): RequestHandler =>
     rateLimit({
-      windowMs: ttl * 60 * 1000,
+      windowMs: windowMinutes * 60 * 1000,
       limit,
-
-      skip: (req) => {
-        const data = fromWhere(requestIp(req));
-        return data?.country !== 'EG';
-      },
-
-      legacyHeaders,
+      legacyHeaders: false,
       standardHeaders,
       skipSuccessfulRequests,
-      skipFailedRequests,
-
-      handler: (_req, res) => {
-        return res.status(status).json({
-          success: false,
-          status,
-          message,
-        });
-      },
-
-      keyGenerator: (req: Request) => {
-        const ip = ipKeyGenerator(requestIp(req));
-        return `${ip}::${req.baseUrl}${req.path}`;
-      },
-
-      store: createRedisStore(),
+      keyGenerator: (req: Request) => ipKeyGenerator(requestIp(req)),
+      handler: (_req, _res, next) => next(new TooManyRequestsException('Too many requests', { messageCode })),
+      store: createRedisStore(name),
     });
 }
 
 export const limiterGuard = new LimiterGuard();
+
+export const rateLimits = {
+  global: limiterGuard.generateLimiter({ name: 'global', limit: 300, windowMinutes: 15 }),
+  auth: limiterGuard.generateLimiter({ name: 'auth', limit: 10, windowMinutes: 15, skipSuccessfulRequests: true }),
+  refresh: limiterGuard.generateLimiter({ name: 'refresh', limit: 30, windowMinutes: 15 }),
+  otp: limiterGuard.generateLimiter({ name: 'otp', limit: 10, windowMinutes: 15 }),
+  write: limiterGuard.generateLimiter({ name: 'write', limit: 60, windowMinutes: 15 }),
+  upload: limiterGuard.generateLimiter({ name: 'upload', limit: 10, windowMinutes: 60 }),
+};

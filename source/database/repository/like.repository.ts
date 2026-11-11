@@ -8,7 +8,6 @@ export class LikeRepository extends DatabaseRepository<ILike> {
     super(LikeModel);
   }
 
-  /** Post ids (of `postIds`) the user has liked. */
   async idsAmong(userId: Types.ObjectId, postIds: Types.ObjectId[]): Promise<Set<string>> {
     if (!postIds.length) return new Set();
     return new Set(await this.distinctIds('post', { user: userId, post: { $in: postIds } }));

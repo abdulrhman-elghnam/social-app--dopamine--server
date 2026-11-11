@@ -3,6 +3,7 @@ import type { Request, Router as RouterType } from 'express';
 import type { JwtPayload } from 'jsonwebtoken';
 
 import { authGuard } from '../../dependency/guard/auth.guard.js';
+import { rateLimits } from '../../dependency/guard/limiter.guard.js';
 import { validationPipe } from '../../dependency/pipe/validation.pipe.js';
 import { utilService } from '../../dependency/service/util.service.js';
 import { TokenTypeEnum } from '../../dependency/value/security.enum.js';
@@ -44,6 +45,7 @@ class ConversationController {
     this.route.post(
       '/',
       auth,
+      rateLimits.write,
       validationPipe.schema(CreateConversationDTO.schema),
       utilService.responseFormatter({
         handler: (req: Request) => conversationService.create(req.validated!.body as CreateConversationBody, req.payload as JwtPayload),

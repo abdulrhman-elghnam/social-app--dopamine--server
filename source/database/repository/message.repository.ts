@@ -10,7 +10,6 @@ export class MessageRepository extends DatabaseRepository<IMessage> {
     super(MessageModel);
   }
 
-  /** Messages of a conversation, newest first (clients reverse for display), sender populated. */
   async paginateByConversation(conversation: Types.ObjectId, page: number, size: number) {
     return this.paginateLean<{ sender: AuthorCard; replyTo: MessagePreview | null }>({
       filter: { conversation },
@@ -26,14 +25,12 @@ export class MessageRepository extends DatabaseRepository<IMessage> {
     });
   }
 
-  /** Unread messages from others since `after` (or all, when the user has read nothing). */
   async countUnread(conversation: Types.ObjectId, userId: Types.ObjectId, after?: Date): Promise<number> {
     return this.model
       .countDocuments({ conversation, sender: { $ne: userId }, deletedAt: { $exists: false }, ...(after ? { createdAt: { $gt: after } } : {}) })
       .exec();
   }
 
-  /** Adds the user to readBy (and deliveredTo) for every message up to and including `upTo`. */
   async markReadUpTo(conversation: Types.ObjectId, userId: Types.ObjectId, upTo: Date): Promise<void> {
     await this.updateMany({
       filter: { conversation, sender: { $ne: userId }, createdAt: { $lte: upTo } },

@@ -8,7 +8,6 @@ export class BlockRepository extends DatabaseRepository<IBlock> {
     super(BlockModel);
   }
 
-  /** True when either user has blocked the other. */
   async isBlockedEither(a: Types.ObjectId, b: Types.ObjectId): Promise<boolean> {
     const block = await this.findOne({
       filter: {

@@ -12,7 +12,6 @@ export class ConversationMemberRepository extends DatabaseRepository<IConversati
     return this.findOne({ filter: { conversation, user } });
   }
 
-  /** Membership rows of the user for the given conversations, keyed by conversation id. */
   async membershipsByConversation(user: Types.ObjectId, conversationIds: Types.ObjectId[]) {
     const rows = await this.find({ filter: { user, conversation: { $in: conversationIds } }, options: { lean: true } });
     return new Map(rows.map((row) => [String(row.conversation), row]));

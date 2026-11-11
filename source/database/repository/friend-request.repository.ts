@@ -13,8 +13,7 @@ export class FollowRequestRepository extends DatabaseRepository<IFollowRequest> 
   async findBetween(requester: Types.ObjectId, recipient: Types.ObjectId) {
     return this.findOne({ filter: { requester, recipient } });
   }
-
-  /** Pending requests addressed to (`received`) or sent by (`sent`) the user, newest first. */
+  
   async paginatePending(userId: Types.ObjectId, direction: 'received' | 'sent', page: number, size: number) {
     const mine = direction === 'received' ? 'recipient' : 'requester';
     const other = direction === 'received' ? 'requester' : 'recipient';
@@ -26,8 +25,7 @@ export class FollowRequestRepository extends DatabaseRepository<IFollowRequest> 
       size,
     });
   }
-
-  /** Clears any request in either direction (used by block). */
+  
   async deleteBetween(a: Types.ObjectId, b: Types.ObjectId): Promise<void> {
     await this.deleteMany({
       $or: [

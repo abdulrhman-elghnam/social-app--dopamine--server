@@ -4,7 +4,6 @@ import type { IConversation, IMessage } from '../../dependency/interface/databas
 import { AUTHOR_FIELDS, type AuthorCard } from '../../dependency/value/projection.value.js';
 import { DatabaseRepository, type Populated } from './base.repository.js';
 
-/** A message as populated into `conversation.lastMessage` (and `message.replyTo`). */
 export type MessagePreview = Pick<IMessage, 'sender' | 'content' | 'type' | 'createdAt' | 'deletedAt'> & { _id: Types.ObjectId };
 export type ConversationListItem = Populated<IConversation, { participants: AuthorCard[]; lastMessage: MessagePreview | null }>;
 
@@ -18,12 +17,12 @@ export class ConversationRepository extends DatabaseRepository<IConversation> {
     super(ConversationModel);
   }
 
-  /** Existing one-to-one conversation between exactly these two users, or null. */
+
   async findDirectBetween(a: Types.ObjectId, b: Types.ObjectId) {
     return this.findOne({ filter: { isGroup: false, participants: { $all: [a, b], $size: 2 } } });
   }
 
-  /** Conversations the user participates in, most recently active first. */
+
   async paginateForUser(userId: Types.ObjectId, page: number, size: number) {
     return this.paginateLean<{ participants: AuthorCard[]; lastMessage: MessagePreview | null }>({
       filter: { participants: userId },
@@ -33,7 +32,7 @@ export class ConversationRepository extends DatabaseRepository<IConversation> {
     });
   }
 
-  /** Ids of everyone who shares at least one conversation with the user (presence fan-out). */
+
   async contactIds(userId: Types.ObjectId): Promise<string[]> {
     const ids = await this.distinctIds('participants', { participants: userId });
     return ids.filter((id) => id !== String(userId));

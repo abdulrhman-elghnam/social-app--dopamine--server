@@ -5,7 +5,6 @@ import { ReportStatusEnum } from '../../dependency/value/database.enum.js';
 import { AUTHOR_FIELDS, type AuthorCard } from '../../dependency/value/projection.value.js';
 import { DatabaseRepository, type Populated } from './base.repository.js';
 
-/** A report with every reference populated (`post` / `comment` absent for other target types). */
 export type PopulatedReport = Populated<
   IReport,
   {
@@ -30,7 +29,7 @@ export class ReportRepository extends DatabaseRepository<IReport> {
     super(ReportModel);
   }
 
-  /** A still-pending report by the same reporter about the same target, or null. */
+
   async findPendingDuplicate(reporter: Types.ObjectId, target: QueryFilter<IReport>) {
     return this.findOne({ filter: { reporter, status: ReportStatusEnum.PENDING, ...target }, options: { select: '_id', lean: true } });
   }

@@ -20,11 +20,6 @@ import { Rooms, SocketEvents, type Ack, type ClientEventName, type ClientToServe
 
 type AppSocket = Socket<ClientToServerEvents, ServerToClientEvents, Record<string, never>, SocketData>;
 
-/**
- * Socket.IO entry point. Clients connect with `io(url, { auth: { token: ACCESS_TOKEN } })`
- * (optionally `auth.language: 'ar'`). Every socket joins its personal `user:<id>` room;
- * conversation rooms are joined explicitly with `conversation:join`.
- */
 class SocketServer {
   attach(httpServer: HttpServer): Server {
     const io: AppServer = new Server<ClientToServerEvents, ServerToClientEvents, Record<string, never>, SocketData>(httpServer, { cors: { origin: '*' } });
@@ -55,7 +50,6 @@ class SocketServer {
     await socket.join(Rooms.user(userId));
     if (socketGateway.addConnection(userId)) await this.broadcastPresence(me, true);
 
-    /** Registers a validated, ack-aware handler; errors go to the ack, never crash the socket. */
     const on = <T>(event: ClientEventName, schema: ZodType<T>, handler: (input: T) => Promise<unknown>) => {
       socket.on(event, async (raw: unknown, ack?: Ack) => {
         const reply = typeof ack === 'function' ? ack : () => undefined;
@@ -115,10 +109,7 @@ class SocketServer {
     });
   }
 
-  /**
-   * Tells everyone sharing a conversation with the user that they came online / went offline
-   * (`presence:online|offline`) plus a generic `presence:update` carrying the full state.
-   */
+
   private async broadcastPresence(user: Types.ObjectId, online: boolean): Promise<void> {
     const contacts = await conversationRepository.contactIds(user);
     if (!contacts.length) return;

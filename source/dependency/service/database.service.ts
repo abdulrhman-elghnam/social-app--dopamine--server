@@ -6,7 +6,11 @@ class DatabaseService {
 
   connect = async () => {
     try {
-      await mongoose.connect(String(configService.get('DATABASE_URI')));
+      await mongoose.connect(configService.getOrThrow('DATABASE_URI'), {
+        // Fail fast instead of hanging a request (or a serverless invocation) for the 30s default.
+        serverSelectionTimeoutMS: 5_000,
+        maxPoolSize: Number(configService.get('DATABASE_POOL_SIZE', '10')),
+      });
       console.log({ database: `Connected to database` });
     } catch (error) {
       console.log({ database: `Error connecting to database: ${error}` });

@@ -19,7 +19,6 @@ export class FollowRepository extends DatabaseRepository<IFollow> {
     return this.distinctIds('following', { follower: userId });
   }
 
-  /** Users following `userId`, newest first, as public user cards. */
   async paginateFollowers(userId: Types.ObjectId, page: number, size: number, hiddenIds: string[] = []) {
     const { data, ...meta } = await this.paginateLean<{ follower: PublicUser | null }>({
       filter: { following: userId, follower: { $nin: hiddenIds } },
@@ -30,7 +29,6 @@ export class FollowRepository extends DatabaseRepository<IFollow> {
     return { data: data.map((row) => row.follower).filter((user): user is PublicUser => user !== null), meta };
   }
 
-  /** Users `userId` follows, newest first, as public user cards. */
   async paginateFollowing(userId: Types.ObjectId, page: number, size: number, hiddenIds: string[] = []) {
     const { data, ...meta } = await this.paginateLean<{ following: PublicUser | null }>({
       filter: { follower: userId, following: { $nin: hiddenIds } },

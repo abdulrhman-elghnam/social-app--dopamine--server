@@ -49,6 +49,12 @@ export class CacheService {
       if (this.client.status === 'ready') resolveConnected();
     });
   }
+  /** Closes the connection gracefully (pending replies are flushed first). */
+  async disconnect(): Promise<void> {
+    if (this.client.status === 'end') return;
+    await this.client.quit();
+  }
+
   private serialize(value: unknown): string {
     const json = JSON.stringify(value);
     if (json === undefined) {

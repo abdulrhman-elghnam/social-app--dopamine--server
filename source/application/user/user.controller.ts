@@ -4,6 +4,7 @@ import type { JwtPayload } from 'jsonwebtoken';
 
 import { authGuard } from '../../dependency/guard/auth.guard.js';
 import { uploadPipe } from '../../dependency/pipe/upload.pipe.js';
+import { rateLimits } from '../../dependency/guard/limiter.guard.js';
 import { validationPipe } from '../../dependency/pipe/validation.pipe.js';
 import { fileFieldValidation, storageService } from '../../dependency/service/storage.service.js';
 import { utilService } from '../../dependency/service/util.service.js';
@@ -22,7 +23,7 @@ import {
 } from './dto/user.dto.js';
 import { userService } from './user.service.js';
 
-/** Single-image upload (multipart field `fieldName`) stored under `assets/<folder>/`. */
+
 const imageUpload = (fieldName: string, folder: string): RequestHandler =>
   uploadPipe.uploadMiddleware({
     multerMiddleware: storageService.localFileStorage({ maxFileSize: 5, validation: fileFieldValidation.image, customPath: folder }).single(fieldName),
@@ -30,7 +31,7 @@ const imageUpload = (fieldName: string, folder: string): RequestHandler =>
     validation: fileFieldValidation.image,
   });
 
-/** Mounted at `/users`. `/me`, `/search`, `/suggestions` are registered before `/:userId`. */
+
 class UserController {
   public readonly route: RouterType = Router({ caseSensitive: true, strict: true });
 
@@ -50,6 +51,7 @@ class UserController {
     this.route.patch(
       '/me/avatar',
       auth,
+      rateLimits.upload,
       imageUpload('avatar', 'avatars'),
       utilService.responseFormatter({
         handler: (req: Request) => userService.changeImage('image', req.file as Express.Multer.File, req.payload as JwtPayload),
@@ -59,6 +61,7 @@ class UserController {
     this.route.patch(
       '/me/cover-image',
       auth,
+      rateLimits.upload,
       imageUpload('coverImage', 'cover-images'),
       utilService.responseFormatter({
         handler: (req: Request) => userService.changeImage('coverImage', req.file as Express.Multer.File, req.payload as JwtPayload),

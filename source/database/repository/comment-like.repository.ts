@@ -8,7 +8,6 @@ export class CommentLikeRepository extends DatabaseRepository<ICommentLike> {
     super(CommentLikeModel);
   }
 
-  /** Comment ids (of `commentIds`) the user has liked. */
   async idsAmong(userId: Types.ObjectId, commentIds: Types.ObjectId[]): Promise<Set<string>> {
     if (!commentIds.length) return new Set();
     return new Set(await this.distinctIds('comment', { user: userId, comment: { $in: commentIds } }));

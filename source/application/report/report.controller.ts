@@ -4,6 +4,7 @@ import type { JwtPayload } from 'jsonwebtoken';
 
 import { authGuard } from '../../dependency/guard/auth.guard.js';
 import { roleGuard } from '../../dependency/guard/role.guard.js';
+import { rateLimits } from '../../dependency/guard/limiter.guard.js';
 import { validationPipe } from '../../dependency/pipe/validation.pipe.js';
 import { utilService } from '../../dependency/service/util.service.js';
 import { SystemRoleEnum, TokenTypeEnum } from '../../dependency/value/security.enum.js';
@@ -31,6 +32,7 @@ class ReportController {
     this.route.post(
       '/',
       auth,
+      rateLimits.write,
       validationPipe.schema(CreateReportDTO.schema),
       utilService.responseFormatter({ handler: (req: Request) => reportService.create(req.validated!.body as CreateReportBody, req.payload as JwtPayload) }),
     );

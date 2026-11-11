@@ -1,6 +1,7 @@
 import type { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 
 import { languageService } from './language.service.js';
+import { configService } from './config.service.js';
 import { IError } from '../exception/app.exception.js';
 import { randomInt } from 'crypto';
 import { Types } from 'mongoose';
@@ -22,23 +23,21 @@ export class UtilService {
 
   createOtp = () => randomInt(100000, 1000000);
 
-  toObjectId = (id: string) => {
-    return new Types.ObjectId(id);
-  };
+  toObjectId = (id: string) => new Types.ObjectId(id);
 
-  /** Id of the authenticated user (JWT `sub`) set by authGuard. */
   currentUserId = (payload: { sub?: string | undefined } | undefined) => new Types.ObjectId(payload?.sub as string);
-  /** Id of a reference whether or not it was populated (`ObjectId` or `{ _id }`). */
   refId = (ref: Types.ObjectId | { _id: Types.ObjectId }): Types.ObjectId => (ref instanceof Types.ObjectId ? ref : ref._id);
-  /** Typed subset of an object's own keys. */
+
   pick = <T extends object, K extends keyof T>(source: T, keys: readonly K[]): Pick<T, K> => {
     const result = {} as Pick<T, K>;
     for (const key of keys) if (key in source) result[key] = source[key];
     return result;
   };
-  /** Splits a paginate() result into the `{ data, meta }` envelope the API returns. */
+
   paged = <D>({ data, ...meta }: { data: D[]; totalDocuments: number; totalPages: number; currentPage: number; pageSize: number }) => ({ data, meta });
+
   issuer = (req: Request) => `${req.protocol}://${req.host}`;
+
   splitFullName = (fullName: string) => {
     const [firstName, ...rest] = fullName.trim().split(/\s+/);
     return {
@@ -100,6 +99,15 @@ export class UtilService {
     const language = req.get('accept-language');
 
     const errorMessage = languageService.chooseLanguage(language, messageCode);
+
+    if (configService.get('NODE_ENV') === 'production') {
+      // Never leak internals to clients; unexpected failures are logged for the platform's log view.
+      if (statusCode >= 500) console.error({ error: normalizedError.message, stack: normalizedError.stack, path: req.originalUrl });
+      return res.status(statusCode).json({
+        errorMessage,
+        ...(statusCode < 500 ? { error: normalizedError.message } : {}),
+      });
+    }
 
     return res.status(statusCode).json({
       errorMessage,

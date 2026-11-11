@@ -18,7 +18,6 @@ export class PostRepository extends DatabaseRepository<IPost> {
     super(PostModel);
   }
 
-  /** Non-deleted post by id, or null. */
   async findActiveById(postId: Types.ObjectId): Promise<HPostDocument | null> {
     return this.findOne({ filter: { _id: postId, ...ACTIVE } });
   }
@@ -37,7 +36,6 @@ export class PostRepository extends DatabaseRepository<IPost> {
     return null;
   }
 
-  /** Home feed: the viewer's own posts plus public/followers posts from people they follow. */
   async paginateFeed(viewerId: Types.ObjectId, page: number, size: number) {
     const [followingIds, hiddenIds] = await Promise.all([followRepository.followingIds(viewerId), blockRepository.hiddenUserIds(viewerId)]);
     const visibleFollowing = followingIds.filter((id) => !hiddenIds.includes(id));
@@ -48,7 +46,6 @@ export class PostRepository extends DatabaseRepository<IPost> {
     return this.paginateLean<{ author: AuthorCard }>({ filter, options: { sort: { createdAt: -1 }, populate: populateAuthor }, page, size });
   }
 
-  /** One author's posts as seen by the viewer (own: all; follower: public+followers; others: public). */
   async paginateByAuthorFor(authorId: Types.ObjectId, viewerId: Types.ObjectId, isFollower: boolean, page: number, size: number) {
     const visibility = authorId.equals(viewerId)
       ? Object.values(PostVisibilityEnum)
@@ -67,7 +64,6 @@ export class PostRepository extends DatabaseRepository<IPost> {
     await this.updateOne({ filter: { _id: postId }, data: { $set: { deletedAt: new Date() } } });
   }
 
-  /** Adjusts a counter by ±1 without going below zero. */
   async changeCounter(postId: Types.ObjectId, field: Counter, amount: 1 | -1): Promise<void> {
     await this.updateOne({
       filter: amount < 0 ? { _id: postId, [field]: { $gt: 0 } } : { _id: postId },
@@ -75,7 +71,6 @@ export class PostRepository extends DatabaseRepository<IPost> {
     });
   }
 
-  /** Lowers a counter by `by` (e.g. a comment plus its replies), clamping at zero. */
   async decrementCounterBy(postId: Types.ObjectId, field: Counter, by: number): Promise<void> {
     if (by <= 0) return;
     const result = await this.updateOne({ filter: { _id: postId, [field]: { $gte: by } }, data: { $inc: { [field]: -by } } });

@@ -63,7 +63,7 @@ class UserService {
       if (!user) throw this.notFound();
       return { messageCode: 415, data: user };
     } catch (error) {
-      // Lost a race on the unique username index.
+
       if ((error as { code?: number }).code === 11000) throw new ConflictException('Username taken', { messageCode: 424 });
       throw error;
     }
@@ -75,7 +75,6 @@ class UserService {
     return { messageCode: 415, data: { [field]: user[field] } };
   };
 
-  /** Profile with the viewer's relationship to it; private + not following → limited card. */
   getProfile = async (userId: string, payload: JwtPayload): Promise<IHandlerResult> => {
     const viewer = utilService.currentUserId(payload);
     const target = utilService.toObjectId(userId);

@@ -14,17 +14,14 @@ export class CommentRepository extends DatabaseRepository<IComment> {
     super(CommentModel);
   }
 
-  /** Non-deleted comment by id, or null. */
   async findActiveById(commentId: Types.ObjectId): Promise<HCommentDocument | null> {
     return this.findOne({ filter: { _id: commentId, ...ACTIVE } });
   }
 
-  /** Non-deleted comment that belongs to the given post, or null. */
   async findActiveInPost(postId: Types.ObjectId, commentId: Types.ObjectId): Promise<HCommentDocument | null> {
     return this.findOne({ filter: { _id: commentId, post: postId, ...ACTIVE } });
   }
 
-  /** Top-level comments of a post, newest first, author populated, excluding hidden authors. */
   async paginateByPost(postId: Types.ObjectId, page: number, size: number, hiddenIds: string[] = []) {
     return this.paginateLean<{ author: AuthorCard }>({
       filter: { post: postId, parentComment: { $exists: false }, author: { $nin: hiddenIds }, ...ACTIVE },
@@ -34,7 +31,6 @@ export class CommentRepository extends DatabaseRepository<IComment> {
     });
   }
 
-  /** Replies to a comment, oldest first (conversation order), author populated. */
   async paginateReplies(commentId: Types.ObjectId, page: number, size: number, hiddenIds: string[] = []) {
     return this.paginateLean<{ author: AuthorCard }>({
       filter: { parentComment: commentId, author: { $nin: hiddenIds }, ...ACTIVE },
@@ -48,13 +44,11 @@ export class CommentRepository extends DatabaseRepository<IComment> {
     await this.updateOne({ filter: { _id: commentId }, data: { $set: { deletedAt: new Date() } } });
   }
 
-  /** Soft-deletes the replies of a comment; returns how many were removed. */
   async softDeleteReplies(commentId: Types.ObjectId): Promise<number> {
     const result = await this.updateMany({ filter: { parentComment: commentId, ...ACTIVE }, data: { $set: { deletedAt: new Date() } } });
     return result.modifiedCount;
   }
 
-  /** Adjusts a counter by ±1 without going below zero. */
   async changeCounter(commentId: Types.ObjectId, field: Counter, amount: 1 | -1): Promise<void> {
     await this.updateOne({
       filter: amount < 0 ? { _id: commentId, [field]: { $gt: 0 } } : { _id: commentId },

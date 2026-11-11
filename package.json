@@ -14,12 +14,15 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "lint:config": "oxlint --init",
-    "format": "npx prettier . --write"
+    "format": "npx prettier . --write",
+    "start": "node ./distribution/main.js",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@types/bcrypt": "^6.0.0",
     "bcrypt": "^6.0.0",
     "concurrently": "^10.0.6",
+    "cors": "^2.8.6",
     "cross-env": "^10.1.0",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
@@ -37,6 +40,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/geoip-lite": "^1.4.4",
     "@types/jsonwebtoken": "^9.0.10",
@@ -47,5 +51,8 @@
     "morgan": "^1.12.1",
     "oxlint": "^1.89.0",
     "prettier": "3.9.10"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
