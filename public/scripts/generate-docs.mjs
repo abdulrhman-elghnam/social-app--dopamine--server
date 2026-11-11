@@ -1,13 +1,3 @@
-/**
- * Generates the Dopamine API documentation from the code:
- *   public/documentation/swagger.json  — OpenAPI 3.1 (served as Swagger UI at /docs)
- *   public/documentation/postman.json  — Postman collection v2.1 (served at /docs/postman.json)
- *
- * Request schemas come straight from the zod DTOs (`z.toJSONSchema`), so they can't drift from
- * validation. Every example body is parsed with its DTO before writing; a bad example fails the run.
- *
- * Usage: npm run docs   (builds first — this script imports the compiled DTOs from distribution/)
- */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -29,7 +19,6 @@ const notification = await load('application/notification/dto/notification.dto.j
 const chat = await load('application/chat/dto/conversation.dto.js');
 const report = await load('application/report/dto/report.dto.js');
 
-// ── metadata ─────────────────────────────────────────────────────────────────────────────────────
 
 const APP = {
   name: 'Dopamine',
@@ -54,7 +43,6 @@ const TAGS = [
   { name: 'System', description: 'Health and service info.' },
 ];
 
-// ── response models (mirrors client/src/api/types.ts) ────────────────────────────────────────────
 
 const id = { type: 'string', pattern: '^[a-f\\d]{24}$', example: SAMPLE_ID };
 const date = { type: 'string', format: 'date-time' };

@@ -1,6 +1,7 @@
 import type { Request, RequestHandler } from 'express';
 import { ipKeyGenerator, rateLimit, type Options, type Store } from 'express-rate-limit';
 import { TooManyRequestsException } from '../exception/main.exception.js';
+import { configService } from '../service/config.service.js';
 import { cacheService } from '../service/cache.service.js';
 
 interface LimiterOptions {
@@ -73,11 +74,16 @@ export class LimiterGuard {
 
 export const limiterGuard = new LimiterGuard();
 
+const limitFor = (name: string, fallback: number): number => {
+  const value = Number.parseInt(configService.get(`RATE_LIMIT_${name.toUpperCase()}`, '') ?? '', 10);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+};
+
 export const rateLimits = {
-  global: limiterGuard.generateLimiter({ name: 'global', limit: 300, windowMinutes: 15 }),
-  auth: limiterGuard.generateLimiter({ name: 'auth', limit: 10, windowMinutes: 15, skipSuccessfulRequests: true }),
-  refresh: limiterGuard.generateLimiter({ name: 'refresh', limit: 30, windowMinutes: 15 }),
-  otp: limiterGuard.generateLimiter({ name: 'otp', limit: 10, windowMinutes: 15 }),
-  write: limiterGuard.generateLimiter({ name: 'write', limit: 60, windowMinutes: 15 }),
-  upload: limiterGuard.generateLimiter({ name: 'upload', limit: 10, windowMinutes: 60 }),
+  global: limiterGuard.generateLimiter({ name: 'global', limit: limitFor('global', 1500), windowMinutes: 15 }),
+  auth: limiterGuard.generateLimiter({ name: 'auth', limit: limitFor('auth', 20), windowMinutes: 15, skipSuccessfulRequests: true }),
+  refresh: limiterGuard.generateLimiter({ name: 'refresh', limit: limitFor('refresh', 100), windowMinutes: 15 }),
+  otp: limiterGuard.generateLimiter({ name: 'otp', limit: limitFor('otp', 15), windowMinutes: 15 }),
+  write: limiterGuard.generateLimiter({ name: 'write', limit: limitFor('write', 300), windowMinutes: 15 }),
+  upload: limiterGuard.generateLimiter({ name: 'upload', limit: limitFor('upload', 30), windowMinutes: 60 }),
 };
