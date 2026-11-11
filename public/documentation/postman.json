@@ -17,7 +17,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:9090",
+      "value": "https://dopamine-sable-xi.vercel.app",
       "type": "string"
     },
     {
@@ -635,6 +635,40 @@
               ]
             },
             "description": ""
+          }
+        },
+        {
+          "name": "Users you have blocked",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me/blocked?page=1&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "blocked"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Newest first. Unblock with `DELETE /users/{userId}/block`."
           }
         },
         {

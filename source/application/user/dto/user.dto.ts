@@ -64,6 +64,12 @@ export class SuggestUsersDTO {
 }
 export type SuggestUsersQuery = z.infer<ReturnType<typeof SuggestUsersDTO.schema>['query']>;
 
+/** GET /users/me/blocked?page=&size= */
+export class BlockedUsersDTO {
+  static schema = (language: ApiLanguage) => ({ query: paginationQuery(language) });
+}
+export type BlockedUsersQuery = z.infer<ReturnType<typeof BlockedUsersDTO.schema>['query']>;
+
 /** /users/:userId, /users/:userId/block, /users/:userId/follow */
 export class UserIdDTO {
   static schema = (language: ApiLanguage) => ({ params: idParams(language, 'userId') });

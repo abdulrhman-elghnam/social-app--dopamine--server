@@ -10,11 +10,13 @@ import { fileFieldValidation, storageService } from '../../dependency/service/st
 import { utilService } from '../../dependency/service/util.service.js';
 import { TokenTypeEnum } from '../../dependency/value/security.enum.js';
 import {
+  BlockedUsersDTO,
   SearchUsersDTO,
   SuggestUsersDTO,
   UpdateMeDTO,
   UserIdDTO,
   UserListDTO,
+  type BlockedUsersQuery,
   type SearchUsersQuery,
   type SuggestUsersQuery,
   type UpdateMeBody,
@@ -66,6 +68,13 @@ class UserController {
       utilService.responseFormatter({
         handler: (req: Request) => userService.changeImage('coverImage', req.file as Express.Multer.File, req.payload as JwtPayload),
       }),
+    );
+
+    this.route.get(
+      '/me/blocked',
+      auth,
+      validationPipe.schema(BlockedUsersDTO.schema),
+      utilService.responseFormatter({ handler: (req: Request) => userService.blocked(req.validated!.query as BlockedUsersQuery, req.payload as JwtPayload) }),
     );
 
     this.route.get(

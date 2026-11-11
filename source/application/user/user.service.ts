@@ -13,7 +13,7 @@ import { FollowRequestStatusEnum, GenderEnum, UserPrivacyControllerEnum } from '
 import { socketGateway } from '../../realtime/socket.gateway.js';
 import { followRequestService } from '../follow-request/follow-request.service.js';
 import { postService } from '../post/post.service.js';
-import type { SearchUsersQuery, SuggestUsersQuery, UpdateMeBody, UserListQuery } from './dto/user.dto.js';
+import type { BlockedUsersQuery, SearchUsersQuery, SuggestUsersQuery, UpdateMeBody, UserListQuery } from './dto/user.dto.js';
 
 /** Fields a non-follower still sees on a private profile. */
 const LIMITED_FIELDS = ['_id', 'firstName', 'lastName', 'username', 'image', 'privacyController', 'followersCount', 'followingCount', 'postsCount'] as const;
@@ -141,6 +141,11 @@ class UserService {
     ]);
     const result = await userRepository.suggestUsers({ userId: me, excludeIds: [...following, ...hidden, ...requested], page: query.page, size: query.size });
     return { messageCode: 420, ...utilService.paged(result) };
+  };
+
+  blocked = async (query: BlockedUsersQuery, payload: JwtPayload): Promise<IHandlerResult> => {
+    const { data, meta } = await blockRepository.paginateBlockedBy(utilService.currentUserId(payload), query.page, query.size);
+    return { messageCode: 420, data, meta };
   };
 
   /** Blocking severs follows both ways and clears pending requests. Idempotent. */

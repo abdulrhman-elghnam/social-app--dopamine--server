@@ -13,6 +13,8 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { z } from 'zod';
 
+const PRODUCTION_URL = (process.env['DOCS_PRODUCTION_URL'] || 'https://dopamine-sable-xi.vercel.app').replace(/\/$/, '');
+
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'));
 const outDir = resolve(root, 'public/documentation');
@@ -437,6 +439,18 @@ const routes = [
     dto: user.SearchUsersDTO,
     query: { q: 'mona', page: '1', size: '10' },
     summary: 'Search users by name or username',
+    data: many('PublicUser'),
+    paged: true,
+  },
+  {
+    tag: 'Users',
+    method: 'get',
+    path: '/users/me/blocked',
+    auth: 'user',
+    dto: user.BlockedUsersDTO,
+    query: { page: '1', size: '20' },
+    summary: 'Users you have blocked',
+    description: 'Newest first. Unblock with `DELETE /users/{userId}/block`.',
     data: many('PublicUser'),
     paged: true,
   },
@@ -1093,12 +1107,8 @@ const openapi = {
 ${SOCKET_DOCS}`,
   },
   servers: [
+    { url: PRODUCTION_URL, description: 'Production (Vercel)' },
     { url: 'http://localhost:9090', description: 'Local development' },
-    {
-      url: '{baseUrl}',
-      description: 'Deployed',
-      variables: { baseUrl: { default: 'https://your-deployment.vercel.app', description: 'Your deployment URL' } },
-    },
   ],
   tags: TAGS,
   paths,
@@ -1174,7 +1184,7 @@ const postman = {
     schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
   },
   auth: { type: 'bearer', bearer: [{ key: 'token', value: '{{accessToken}}', type: 'string' }] },
-  variable: VARIABLES.map((key) => ({ key, value: key === 'baseUrl' ? 'http://localhost:9090' : '', type: 'string' })),
+  variable: VARIABLES.map((key) => ({ key, value: key === 'baseUrl' ? PRODUCTION_URL : '', type: 'string' })),
   item: TAGS.map((tag) => ({ name: tag.name, description: tag.description, item: routes.filter((route) => route.tag === tag.name).map(postmanItem) })),
 };
 
