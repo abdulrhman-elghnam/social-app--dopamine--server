@@ -1,0 +1,89 @@
+@Host = http://127.0.0.1:9090
+@AcceptLanguage = en
+# Paste an access token from POST /auth/login
+@token = ACCESS_TOKEN
+@userId = USER_ID
+@requestId = REQUEST_ID
+
+### Me
+GET {{Host}}/users/me
+Authorization: Bearer {{token}}
+
+### Update profile (any subset)
+PATCH {{Host}}/users/me
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "bio": "Hello!", "privacyController": "private" }
+
+### Avatar (multipart field "avatar"; cover image: PATCH /users/me/cover-image, field "coverImage")
+PATCH {{Host}}/users/me/avatar
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=b
+
+--b
+Content-Disposition: form-data; name="avatar"; filename="me.png"
+Content-Type: image/png
+
+< ./me.png
+--b--
+
+### Search
+GET {{Host}}/users/search?q=test&page=1&size=10
+Authorization: Bearer {{token}}
+
+### Suggestions
+GET {{Host}}/users/suggestions?page=1&size=10
+Authorization: Bearer {{token}}
+
+### Profile (limited when private and you don't follow)
+GET {{Host}}/users/{{userId}}
+Authorization: Bearer {{token}}
+
+### Followers / following / posts
+GET {{Host}}/users/{{userId}}/followers?page=1&size=10
+Authorization: Bearer {{token}}
+
+###
+GET {{Host}}/users/{{userId}}/following
+Authorization: Bearer {{token}}
+
+###
+GET {{Host}}/users/{{userId}}/posts
+Authorization: Bearer {{token}}
+
+### Block / unblock
+POST {{Host}}/users/{{userId}}/block
+Authorization: Bearer {{token}}
+
+###
+DELETE {{Host}}/users/{{userId}}/block
+Authorization: Bearer {{token}}
+
+### Unfollow
+DELETE {{Host}}/users/{{userId}}/follow
+Authorization: Bearer {{token}}
+
+### Follow (public account) or request (private account)
+POST {{Host}}/follow-requests/{{userId}}
+Authorization: Bearer {{token}}
+
+### Received / sent pending requests
+GET {{Host}}/follow-requests/received
+Authorization: Bearer {{token}}
+
+###
+GET {{Host}}/follow-requests/sent
+Authorization: Bearer {{token}}
+
+### Accept / reject (recipient) — cancel (requester)
+PATCH {{Host}}/follow-requests/{{requestId}}/accept
+Authorization: Bearer {{token}}
+
+###
+PATCH {{Host}}/follow-requests/{{requestId}}/reject
+Authorization: Bearer {{token}}
+
+###
+DELETE {{Host}}/follow-requests/{{requestId}}
+Authorization: Bearer {{token}}

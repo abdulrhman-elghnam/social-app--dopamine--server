@@ -2,7 +2,6 @@ import type { RequestHandler } from 'express';
 import { ServiceUnavailableException } from '../exception/main.exception.js';
 import { configService } from '../service/config.service.js';
 
-
 class MaintenanceModeMiddleware {
   private readonly enabled = configService.get('MAINTENANCE_MODE', 'false')?.trim().toLowerCase() === 'true';
   private readonly retryAfterSeconds = 60 * 60;

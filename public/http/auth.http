@@ -1,0 +1,60 @@
+@Host = http://127.0.0.1:9090
+@AcceptLanguage = en
+# Paste an access token from POST /auth/login
+@token = ACCESS_TOKEN
+
+### Register
+POST {{Host}}/auth/register
+Content-Type: application/json
+Accept-Language: {{AcceptLanguage}}
+
+{ "email": "abdulrhman.mohamed.atya@gmail.com", "username": "test_user", "password": "Password1!", "confirmPassword": "Password1!", "fullName": "Test User", "gender": "MALE", "phoneNumber": "+201012345678", "DOB": "2000-01-01" }
+
+### Verify email OTP
+POST {{Host}}/auth/verify-otp
+Content-Type: application/json
+
+{ "email": "abdulrhman.mohamed.atya@gmail.com", "otp": "123456" }
+
+### Login
+POST {{Host}}/auth/login
+Content-Type: application/json
+
+{ "email": "abdulrhman.mohamed.atya@gmail.com", "password": "Password1!" }
+
+### Refresh (single-use: returns a new access + refresh pair)
+POST {{Host}}/auth/refresh
+Content-Type: application/json
+
+{ "refreshToken": "REFRESH_TOKEN" }
+
+### Logout this device (type: SINGLE | ALL)
+POST {{Host}}/auth/logout
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "type": "SINGLE", "refreshToken": "REFRESH_TOKEN" }
+
+### Google sign-in
+POST {{Host}}/auth/google
+Content-Type: application/json
+
+{ "idToken": "GOOGLE_ID_TOKEN" }
+
+### Forgot password → emails an OTP
+POST {{Host}}/auth/forgot-password
+Content-Type: application/json
+
+{ "email": "abdulrhman.mohamed.atya@gmail.com" }
+
+### Verify the reset OTP
+POST {{Host}}/auth/verify-forgot-password
+Content-Type: application/json
+
+{ "email": "abdulrhman.mohamed.atya@gmail.com", "otp": "123456" }
+
+### Set the new password (OTP required)
+POST {{Host}}/auth/change-password
+Content-Type: application/json
+
+{ "email": "abdulrhman.mohamed.atya@gmail.com", "otp": "123456", "password": "NewPassword1!", "confirmPassword": "NewPassword1!" }

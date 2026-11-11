@@ -1,0 +1,89 @@
+@Host = http://127.0.0.1:9090
+@AcceptLanguage = en
+# Paste an access token from POST /auth/login
+@token = ACCESS_TOKEN
+@postId = POST_ID
+@commentId = COMMENT_ID
+
+### Create (visibility: public | followers | private)
+POST {{Host}}/posts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "content": "Hello world", "visibility": "public", "commentsEnabled": true }
+
+### Feed
+GET {{Host}}/posts?page=1&size=10
+Authorization: Bearer {{token}}
+
+### Get / update / delete
+GET {{Host}}/posts/{{postId}}
+Authorization: Bearer {{token}}
+
+###
+PATCH {{Host}}/posts/{{postId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "content": "Edited" }
+
+###
+DELETE {{Host}}/posts/{{postId}}
+Authorization: Bearer {{token}}
+
+### Like / unlike / save / unsave
+POST {{Host}}/posts/{{postId}}/like
+Authorization: Bearer {{token}}
+
+###
+DELETE {{Host}}/posts/{{postId}}/like
+Authorization: Bearer {{token}}
+
+###
+POST {{Host}}/posts/{{postId}}/save
+Authorization: Bearer {{token}}
+
+###
+DELETE {{Host}}/posts/{{postId}}/save
+Authorization: Bearer {{token}}
+
+### Share (public posts, or your own)
+POST {{Host}}/posts/{{postId}}/share
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "content": "Worth a read" }
+
+### Comment (add parentCommentId to reply)
+POST {{Host}}/posts/{{postId}}/comments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "content": "Nice!" }
+
+### Top-level comments
+GET {{Host}}/posts/{{postId}}/comments?page=1&size=10
+Authorization: Bearer {{token}}
+
+### Replies
+GET {{Host}}/comments/{{commentId}}/replies
+Authorization: Bearer {{token}}
+
+### Edit / delete (author, or the post's author for delete)
+PATCH {{Host}}/comments/{{commentId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "content": "Nice!!" }
+
+###
+DELETE {{Host}}/comments/{{commentId}}
+Authorization: Bearer {{token}}
+
+### Like / unlike comment
+POST {{Host}}/comments/{{commentId}}/like
+Authorization: Bearer {{token}}
+
+###
+DELETE {{Host}}/comments/{{commentId}}/like
+Authorization: Bearer {{token}}

@@ -75,6 +75,9 @@ export interface IRepositoryPaginateOptions<T> {
   size?: number;
 }
 
+/** A lean document whose `P` keys were replaced by `populate` (lean results always carry `_id`). */
+export type Populated<T, P extends object = object> = Omit<T, keyof P | '_id'> & P & { _id: Types.ObjectId };
+
 export interface IRepositoryPaginateResult<T> {
   data: T[];
   totalDocuments: number;
@@ -148,10 +151,40 @@ export abstract class DatabaseRepository<T> {
     } as UpdateQuery<T>;
   }
 
-  async create({ data, options }: { data: T; options?: object }): Promise<HydratedDocument<T>> {
+  /**
+   * `data` may omit fields Mongoose fills in (`_id`, timestamps, schema defaults such as counters);
+   * the schema's `required` rules are still enforced at runtime.
+   */
+  async create({ data, options }: { data: Partial<T>; options?: object }): Promise<HydratedDocument<T>> {
     const document = options === undefined ? await this.model.create(data as never) : await this.model.create(data as never, options as SaveOptions);
 
     return document as unknown as HydratedDocument<T>;
+  }
+
+  /**
+   * Inserts a document only when nothing matches `filter` (equality fields of the filter are copied into it).
+   * Returns true when a document was created. Race-safe when a unique index covers the filter.
+   */
+  async createIfAbsent(filter: QueryFilter<T>, extra: Record<string, unknown> = {}): Promise<boolean> {
+    try {
+      const result = await this.model.updateOne(filter, { $setOnInsert: extra } as UpdateQuery<T>, { upsert: true }).exec();
+      return result.upsertedCount > 0;
+    } catch (error) {
+      if ((error as { code?: number }).code === 11000) return false;
+      throw error;
+    }
+  }
+
+  /** Deletes one matching document; true when something was deleted. */
+  async deleteIfPresent(filter: QueryFilter<T>): Promise<boolean> {
+    const result = await this.model.deleteOne(filter).exec();
+    return result.deletedCount > 0;
+  }
+
+  /** Distinct values of `field` among documents matching `filter`, as strings. */
+  async distinctIds(field: string, filter: QueryFilter<T>): Promise<string[]> {
+    const values = await this.model.distinct(field, filter).exec();
+    return values.map((value) => String(value));
   }
 
   async createMany({ data, options }: { data: T[]; options?: InsertManyOptions }): Promise<HydratedDocument<T>[]> {
@@ -265,6 +298,15 @@ export abstract class DatabaseRepository<T> {
       currentPage,
       pageSize,
     };
+  }
+
+  /**
+   * Lean pagination with a typed result: `P` declares what `options.populate` turns each
+   * reference into, e.g. `paginateLean<{ author: AuthorCard }>(…)`.
+   */
+  async paginateLean<P extends object = object>(params: IRepositoryPaginateOptions<T>): Promise<IRepositoryPaginateResult<Populated<T, P>>> {
+    const result = await this.paginate({ ...params, options: { ...params.options, lean: true } });
+    return result as IRepositoryPaginateResult<Populated<T, P>>;
   }
 
   async updateOne({ filter, data, options }: IRepositoryUpdateOptions<T>): Promise<UpdateResult> {

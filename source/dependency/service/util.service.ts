@@ -25,6 +25,19 @@ export class UtilService {
   toObjectId = (id: string) => {
     return new Types.ObjectId(id);
   };
+
+  /** Id of the authenticated user (JWT `sub`) set by authGuard. */
+  currentUserId = (payload: { sub?: string | undefined } | undefined) => new Types.ObjectId(payload?.sub as string);
+  /** Id of a reference whether or not it was populated (`ObjectId` or `{ _id }`). */
+  refId = (ref: Types.ObjectId | { _id: Types.ObjectId }): Types.ObjectId => (ref instanceof Types.ObjectId ? ref : ref._id);
+  /** Typed subset of an object's own keys. */
+  pick = <T extends object, K extends keyof T>(source: T, keys: readonly K[]): Pick<T, K> => {
+    const result = {} as Pick<T, K>;
+    for (const key of keys) if (key in source) result[key] = source[key];
+    return result;
+  };
+  /** Splits a paginate() result into the `{ data, meta }` envelope the API returns. */
+  paged = <D>({ data, ...meta }: { data: D[]; totalDocuments: number; totalPages: number; currentPage: number; pageSize: number }) => ({ data, meta });
   issuer = (req: Request) => `${req.protocol}://${req.host}`;
   splitFullName = (fullName: string) => {
     const [firstName, ...rest] = fullName.trim().split(/\s+/);

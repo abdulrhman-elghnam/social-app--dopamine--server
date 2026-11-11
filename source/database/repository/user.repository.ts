@@ -1,115 +1,55 @@
+import type { QueryFilter, Types } from 'mongoose';
 import { DatabaseRepository } from './base.repository.js';
 import { UserModel } from '../model/user.model.js';
-import { IUser } from '../../dependency/interface/database.interface.js';
-import { QueryFilter } from 'mongoose';
-import { Types } from 'mongoose';
-import { FollowModel } from '../model/follow.model.js';
+import type { IUser } from '../../dependency/interface/database.interface.js';
+import { PUBLIC_USER_FIELDS } from '../../dependency/value/projection.value.js';
+
+type Counter = 'postsCount' | 'followersCount' | 'followingCount';
+
+const escapeRegex = (value: string) => value.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 export class UserRepository extends DatabaseRepository<IUser> {
   constructor() {
     super(UserModel);
   }
 
-  /** Adjusts postsCount by ±1 without going below zero. */
-  async changePostsCount(userId: Types.ObjectId, amount: 1 | -1): Promise<void> {
+  /** Adjusts a counter by ±1 without going below zero. */
+  async changeCounter(userId: Types.ObjectId, field: Counter, amount: 1 | -1): Promise<void> {
     await this.updateOne({
-      filter: amount < 0 ? { _id: userId, postsCount: { $gt: 0 } } : { _id: userId },
-      data: { $inc: { postsCount: amount } },
+      filter: amount < 0 ? { _id: userId, [field]: { $gt: 0 } } : { _id: userId },
+      data: { $inc: { [field]: amount } },
     });
   }
 
-  async updateFollowCounts({
-    followerId,
-    followingId,
-    amount,
-  }: {
-    followerId: Types.ObjectId | string;
-    followingId: Types.ObjectId | string;
-    amount: 1 | -1;
-  }): Promise<void> {
-    await Promise.all([
-      UserModel.updateOne({ _id: followingId }, [
-        {
-          $set: {
-            followersCount: {
-              $max: [{ $add: [{ $ifNull: ['$followersCount', 0] }, amount] }, 0],
-            },
-          },
-        },
-      ]).exec(),
-      UserModel.updateOne({ _id: followerId }, [
-        {
-          $set: {
-            followingCount: {
-              $max: [{ $add: [{ $ifNull: ['$followingCount', 0] }, amount] }, 0],
-            },
-          },
-        },
-      ]).exec(),
-    ]);
+  async changePostsCount(userId: Types.ObjectId, amount: 1 | -1): Promise<void> {
+    await this.changeCounter(userId, 'postsCount', amount);
   }
 
-  async searchUsers({ search, filter = {}, page = 1, size = 10 }: { search: string; filter?: QueryFilter<IUser>; page?: number; size?: number }) {
-    const searchValue = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    const searchFilter: QueryFilter<IUser> = {
-      $and: [
-        filter,
-        {
-          $or: [
-            { firstName: { $regex: searchValue, $options: 'i' } },
-            { lastName: { $regex: searchValue, $options: 'i' } },
-            { username: { $regex: searchValue, $options: 'i' } },
-            { email: { $regex: searchValue, $options: 'i' } },
-          ],
-        },
-      ],
-    };
-
-    const currentPage = Math.max(1, page);
-    const pageSize = Math.max(1, size);
-    const skip = (currentPage - 1) * pageSize;
-
-    const [data, totalDocuments] = await Promise.all([
-      UserModel.find(searchFilter).skip(skip).limit(pageSize).sort({ createdAt: -1 }).lean().exec(),
-
-      UserModel.countDocuments(searchFilter).exec(),
-    ]);
-
-    return {
-      data,
-      totalDocuments,
-      totalPages: Math.ceil(totalDocuments / pageSize),
-      currentPage,
-      pageSize,
-    };
+  /** follower.followingCount and following.followersCount move together. */
+  async updateFollowCounts({ followerId, followingId, amount }: { followerId: Types.ObjectId; followingId: Types.ObjectId; amount: 1 | -1 }): Promise<void> {
+    await Promise.all([this.changeCounter(followingId, 'followersCount', amount), this.changeCounter(followerId, 'followingCount', amount)]);
   }
 
-  async suggestUsers({ userId, page = 1, size = 10 }: { userId: Types.ObjectId | string; page?: number; size?: number }) {
-    const currentUserId = new Types.ObjectId(userId);
-    const followingIds = await FollowModel.distinct('following', { follower: currentUserId });
-    const excludedIds = [currentUserId, ...followingIds.map((id) => new Types.ObjectId(id))];
+  /** Active user's public card, or null. */
+  async findPublicById(userId: Types.ObjectId) {
+    return this.findOne({ filter: { _id: userId, isActive: true }, options: { select: PUBLIC_USER_FIELDS, lean: true } });
+  }
+
+  /** Name/username search over active users, public fields only. */
+  async searchUsers({ search, excludeIds = [], page = 1, size = 10 }: { search: string; excludeIds?: string[]; page?: number; size?: number }) {
+    const pattern = { $regex: escapeRegex(search), $options: 'i' };
     const filter: QueryFilter<IUser> = {
-      _id: { $nin: excludedIds },
       isActive: true,
+      _id: { $nin: excludeIds },
+      $or: [{ firstName: pattern }, { lastName: pattern }, { username: pattern }],
     };
+    return this.paginateLean({ filter, options: { select: PUBLIC_USER_FIELDS, sort: { followersCount: -1, createdAt: -1 } }, page, size });
+  }
 
-    const currentPage = Math.max(1, page);
-    const pageSize = Math.max(1, size);
-    const skip = (currentPage - 1) * pageSize;
-
-    const [data, totalDocuments] = await Promise.all([
-      UserModel.find(filter).skip(skip).limit(pageSize).sort({ followersCount: -1, createdAt: -1 }).lean().exec(),
-      UserModel.countDocuments(filter).exec(),
-    ]);
-
-    return {
-      data,
-      totalDocuments,
-      totalPages: Math.ceil(totalDocuments / pageSize),
-      currentPage,
-      pageSize,
-    };
+  /** Active users the viewer doesn't follow yet (and isn't hidden from), most-followed first. */
+  async suggestUsers({ userId, excludeIds, page = 1, size = 10 }: { userId: Types.ObjectId; excludeIds: string[]; page?: number; size?: number }) {
+    const filter: QueryFilter<IUser> = { isActive: true, _id: { $nin: [userId, ...excludeIds] } };
+    return this.paginateLean({ filter, options: { select: PUBLIC_USER_FIELDS, sort: { followersCount: -1, createdAt: -1 } }, page, size });
   }
 }
 

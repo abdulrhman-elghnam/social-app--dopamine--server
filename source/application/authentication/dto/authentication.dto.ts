@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { generalValidationFields, translator } from '../../../dependency/pipe/validation.pipe.js';
 import { ApiLanguage } from '../../../dependency/value/system.enum.js';
+import { LogoutTypeEnum } from '../../../dependency/value/security.enum.js';
 
 export class SignupDTO {
   static schema = (language: ApiLanguage) => {
@@ -90,6 +91,7 @@ export class ChangePasswordDTO {
       body: z
         .object({
           email: generalValidationFields.email(t),
+          otp: generalValidationFields.otp(t),
           password: generalValidationFields.password(t),
           confirmPassword: generalValidationFields.confirmPassword(t),
         })
@@ -110,3 +112,22 @@ export class RefreshTokenDTO {
   });
 }
 export type RefreshTokenBody = z.infer<ReturnType<typeof RefreshTokenDTO.schema>['body']>;
+
+/** POST /auth/logout — this device by default; `ALL` signs out every session. */
+export class LogoutDTO {
+  static schema = (language: ApiLanguage) => {
+    const t = translator(language);
+    return {
+      body: z.strictObject({
+        type: z.enum(LogoutTypeEnum, { message: t(257) }).default(LogoutTypeEnum.SINGLE),
+        /** Revoked too on a single-device logout, so the session can't be refreshed back. */
+        refreshToken: z
+          .string({ message: t(312) })
+          .trim()
+          .min(1, { message: t(312) })
+          .optional(),
+      }),
+    };
+  };
+}
+export type LogoutBody = z.infer<ReturnType<typeof LogoutDTO.schema>['body']>;

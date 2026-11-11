@@ -21,9 +21,13 @@ export enum PostVisibilityEnum {
 
 export enum NotificationTypeEnum {
   FOLLOW = 'follow',
+  FOLLOW_REQUEST = 'follow_request',
+  FOLLOW_ACCEPTED = 'follow_accepted',
   LIKE = 'like',
   COMMENT = 'comment',
   REPLY = 'reply',
+  COMMENT_LIKE = 'comment_like',
+  SHARE = 'share',
 }
 
 export enum MediaTypeEnum {

@@ -1,7 +1,7 @@
 import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import { randomUUID } from 'node:crypto';
 import { Types } from 'mongoose';
-import { BadRequestException, ConflictException, UnauthorizedException } from '../exception/main.exception.js';
+import { BadRequestException, UnauthorizedException } from '../exception/main.exception.js';
 import { SystemRoleEnum, TokenTypeEnum } from '../value/security.enum.js';
 import { cacheService, RedisKeys } from './cache.service.js';
 import { configService } from './config.service.js';
@@ -63,6 +63,12 @@ export class TokenService {
       throw new BadRequestException('Invalid token payload');
     }
     return payload;
+  }
+
+  /** Reads claims without verifying the signature (null when malformed). Never trust it for auth. */
+  decodeUnverified(token: string): JwtPayload | null {
+    const payload = jwt.decode(token.replace(/^Bearer\s+/i, '').trim());
+    return payload && typeof payload !== 'string' ? payload : null;
   }
 
   async decodeToken(token: string, expectedType: TokenTypeEnum = TokenTypeEnum.ACCESS): Promise<JwtPayload> {
@@ -158,10 +164,7 @@ export class TokenService {
     }
 
     const ttl = decoded.exp - Math.floor(Date.now() / 1000);
-    if (ttl <= 0) throw new UnauthorizedException('Refresh token expired');
-    if (ttl > 5 * 60) {
-      throw new ConflictException('Refresh token can only be renewed within 5 minutes of expiry');
-    }
+    if (ttl <= 0) throw new UnauthorizedException('Refresh token expired', { messageCode: 305 });
 
     const role = Array.isArray(decoded.aud) ? decoded.aud[1] : undefined;
     if (!Object.values(SystemRoleEnum).includes(role as SystemRoleEnum)) {
@@ -170,7 +173,7 @@ export class TokenService {
 
     const activeToken = await cacheService.getAndDelete(RedisKeys.userToken(decoded.sub, decoded.jti));
     if (activeToken !== TokenTypeEnum.REFRESH) {
-      throw new UnauthorizedException('Refresh token already used or no longer active');
+      throw new UnauthorizedException('Refresh token already used or no longer active', { messageCode: 319 });
     }
 
     return this.createLoginCredentials({ _id: decoded.sub, role: role as SystemRoleEnum }, issuer);

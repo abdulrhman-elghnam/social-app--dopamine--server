@@ -1,5 +1,15 @@
 import { IHandlerResult, utilService } from '../../dependency/service/util.service.js';
-import type { ChangePasswordBody, EmailBody, GoogleSignUpBody, LoginBody, OtpBody, RefreshTokenBody, SignupBody } from './dto/authentication.dto.js';
+import type { JwtPayload } from 'jsonwebtoken';
+import type {
+  ChangePasswordBody,
+  EmailBody,
+  GoogleSignUpBody,
+  LoginBody,
+  LogoutBody,
+  OtpBody,
+  RefreshTokenBody,
+  SignupBody,
+} from './dto/authentication.dto.js';
 import { userRepository } from '../../database/repository/user.repository.js';
 import { cacheService, RedisKeys } from '../../dependency/service/cache.service.js';
 import { securityService } from '../../dependency/service/security.service.js';
@@ -8,7 +18,7 @@ import { googleService } from '../../dependency/service/google.service.js';
 import { mailEvent } from '../../dependency/event/mail.event.js';
 import { BadRequestException, ConflictException, NotFoundException, UnauthorizedException } from '../../dependency/exception/main.exception.js';
 import { GenderEnum, ProviderEnum, SystemRoleEnum, UserPrivacyControllerEnum } from '../../dependency/value/database.enum.js';
-import { SystemRoleEnum as TokenRoleEnum } from '../../dependency/value/security.enum.js';
+import { LogoutTypeEnum, SystemRoleEnum as TokenRoleEnum } from '../../dependency/value/security.enum.js';
 import type { HUserDocument } from '../../database/model/user.model.js';
 
 export class AuthService {
@@ -129,8 +139,14 @@ export class AuthService {
     return { status: 201, messageCode: 104 };
   };
 
+  /** Final step of the forgot-password flow — the OTP from the email is required again. */
   changePassword = async (payload: ChangePasswordBody): Promise<IHandlerResult> => {
     const email = payload.email.toLowerCase();
+    const cachedOtp = await cacheService.getCache<number>(RedisKeys.otpKey(email));
+    if (cachedOtp === null || cachedOtp === undefined || cachedOtp !== Number(payload.otp)) {
+      throw new BadRequestException('Invalid OTP', { messageCode: 233 });
+    }
+
     const user = await userRepository.findOne({ filter: { email } });
 
     if (!user) {
@@ -176,9 +192,22 @@ export class AuthService {
     return { messageCode: 107 };
   };
 
-  logout = async (userId: string): Promise<IHandlerResult> => {
-    await tokenService.logout(userId);
-    return { messageCode: 106 };
+  /** Revokes this session's access token (+ the given refresh token), or every session with `ALL`. */
+  logout = async (body: LogoutBody, payload: JwtPayload): Promise<IHandlerResult> => {
+    const userId = payload.sub as string;
+
+    if (body.type === LogoutTypeEnum.ALL) {
+      await tokenService.logout(userId);
+      return { messageCode: 310 };
+    }
+
+    await tokenService.revokeToken(userId, payload.jti as string);
+    if (body.refreshToken) {
+      const refresh = tokenService.decodeUnverified(body.refreshToken);
+      // Only ever revoke the caller's own refresh token.
+      if (refresh?.sub === userId && refresh.jti) await tokenService.revokeToken(userId, refresh.jti);
+    }
+    return { messageCode: 310 };
   };
 
   rotateToken = async (payload: RefreshTokenBody, issuer: string): Promise<IHandlerResult> => {

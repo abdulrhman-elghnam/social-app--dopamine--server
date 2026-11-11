@@ -76,3 +76,21 @@ export class UpdatePostDTO {
   };
 }
 export type UpdatePostBody = z.infer<ReturnType<typeof UpdatePostDTO.schema>['body']>;
+
+export class SharePostDTO {
+  static schema = (language: ApiLanguage) => {
+    const t = translator(language);
+
+    return {
+      params: postIdParams(t),
+      body: z.strictObject({
+        content: z
+          .string({ message: t(238) })
+          .trim()
+          .max(1000, { message: t(918) })
+          .optional(),
+      }),
+    };
+  };
+}
+export type SharePostBody = z.infer<ReturnType<typeof SharePostDTO.schema>['body']>;

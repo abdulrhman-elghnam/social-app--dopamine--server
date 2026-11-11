@@ -145,3 +145,4 @@ vite.config.ts.timestamp-*
 assets
 dist/
 distribution/
+storage/

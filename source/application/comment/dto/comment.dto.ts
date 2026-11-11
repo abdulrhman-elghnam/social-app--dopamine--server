@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { idParams, paginationQuery } from '../../../dependency/pipe/common.dto.js';
 import { generalValidationFields, translator } from '../../../dependency/pipe/validation.pipe.js';
 import type { Translate } from '../../../dependency/pipe/validation.pipe.js';
 import { ApiLanguage } from '../../../dependency/value/system.enum.js';
@@ -11,25 +12,16 @@ const commentContent = (t: Translate) =>
     .min(1, { message: t(928) })
     .max(2000, { message: t(929) });
 
-const postIdParams = (t: Translate) =>
-  z.object({
-    postId: generalValidationFields.objectId(t),
-  });
-
-const commentIdParams = (t: Translate) =>
-  z.object({
-    postId: generalValidationFields.objectId(t),
-    commentId: generalValidationFields.objectId(t),
-  });
-
+/** POST /posts/:postId/comments — `parentCommentId` makes it a reply. */
 export class CreateCommentDTO {
   static schema = (language: ApiLanguage) => {
     const t = translator(language);
 
     return {
-      params: postIdParams(t),
+      params: idParams(language, 'postId'),
       body: z.strictObject({
         content: commentContent(t),
+        parentCommentId: generalValidationFields.objectId(t).optional(),
       }),
     };
   };
@@ -37,38 +29,35 @@ export class CreateCommentDTO {
 export type CreateCommentBody = z.infer<ReturnType<typeof CreateCommentDTO.schema>['body']>;
 export type CommentPostParams = z.infer<ReturnType<typeof CreateCommentDTO.schema>['params']>;
 
+/** GET /posts/:postId/comments */
 export class GetCommentsDTO {
-  static schema = (language: ApiLanguage) => {
-    const t = translator(language);
-
-    return {
-      params: postIdParams(t),
-      query: z.object({
-        page: generalValidationFields.page(t),
-        size: generalValidationFields.size(t),
-      }),
-    };
-  };
+  static schema = (language: ApiLanguage) => ({
+    params: idParams(language, 'postId'),
+    query: paginationQuery(language),
+  });
 }
 export type GetCommentsQuery = z.infer<ReturnType<typeof GetCommentsDTO.schema>['query']>;
 
+/** /comments/:commentId (delete, like, unlike) */
 export class CommentIdDTO {
-  static schema = (language: ApiLanguage) => ({
-    params: commentIdParams(translator(language)),
-  });
+  static schema = (language: ApiLanguage) => ({ params: idParams(language, 'commentId') });
 }
 export type CommentIdParams = z.infer<ReturnType<typeof CommentIdDTO.schema>['params']>;
 
+/** PATCH /comments/:commentId */
 export class UpdateCommentDTO {
-  static schema = (language: ApiLanguage) => {
-    const t = translator(language);
-
-    return {
-      params: commentIdParams(t),
-      body: z.strictObject({
-        content: commentContent(t),
-      }),
-    };
-  };
+  static schema = (language: ApiLanguage) => ({
+    params: idParams(language, 'commentId'),
+    body: z.strictObject({ content: commentContent(translator(language)) }),
+  });
 }
 export type UpdateCommentBody = z.infer<ReturnType<typeof UpdateCommentDTO.schema>['body']>;
+
+/** GET /comments/:commentId/replies */
+export class GetRepliesDTO {
+  static schema = (language: ApiLanguage) => ({
+    params: idParams(language, 'commentId'),
+    query: paginationQuery(language),
+  });
+}
+export type GetRepliesQuery = z.infer<ReturnType<typeof GetRepliesDTO.schema>['query']>;

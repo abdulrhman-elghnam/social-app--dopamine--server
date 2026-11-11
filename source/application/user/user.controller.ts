@@ -1,143 +1,121 @@
 import { Router } from 'express';
-import type { Request, Response, NextFunction, Router as RouterType } from 'express';
-import { userService } from './user.service.js';
-import { authGuard } from '../../dependency/guard/auth.guard.js';
-import { SystemRoleEnum, TokenTypeEnum } from '../../dependency/value/security.enum.js';
-import { JwtPayload } from 'jsonwebtoken';
-import { roleGuard } from '../../dependency/guard/role.guard.js';
-import { utilService } from '../../dependency/service/util.service.js';
-import { userRepository } from '../../database/repository/user.repository.js';
+import type { Request, RequestHandler, Router as RouterType } from 'express';
+import type { JwtPayload } from 'jsonwebtoken';
 
+import { authGuard } from '../../dependency/guard/auth.guard.js';
 import { uploadPipe } from '../../dependency/pipe/upload.pipe.js';
 import { validationPipe } from '../../dependency/pipe/validation.pipe.js';
-import { userDTO } from './dto/user.dto.js';
 import { fileFieldValidation, storageService } from '../../dependency/service/storage.service.js';
+import { utilService } from '../../dependency/service/util.service.js';
+import { TokenTypeEnum } from '../../dependency/value/security.enum.js';
+import {
+  SearchUsersDTO,
+  SuggestUsersDTO,
+  UpdateMeDTO,
+  UserIdDTO,
+  UserListDTO,
+  type SearchUsersQuery,
+  type SuggestUsersQuery,
+  type UpdateMeBody,
+  type UserIdParams,
+  type UserListQuery,
+} from './dto/user.dto.js';
+import { userService } from './user.service.js';
 
+/** Single-image upload (multipart field `fieldName`) stored under `assets/<folder>/`. */
+const imageUpload = (fieldName: string, folder: string): RequestHandler =>
+  uploadPipe.uploadMiddleware({
+    multerMiddleware: storageService.localFileStorage({ maxFileSize: 5, validation: fileFieldValidation.image, customPath: folder }).single(fieldName),
+    customPath: folder,
+    validation: fileFieldValidation.image,
+  });
+
+/** Mounted at `/users`. `/me`, `/search`, `/suggestions` are registered before `/:userId`. */
 class UserController {
-  public readonly route: RouterType;
+  public readonly route: RouterType = Router({ caseSensitive: true, strict: true });
 
   constructor() {
-    this.route = Router({
-      caseSensitive: true,
-      strict: true,
-      mergeParams: true,
-    });
+    const auth = authGuard.check(TokenTypeEnum.ACCESS);
+    const userId = (req: Request) => (req.validated!.params as UserIdParams).userId;
 
-    this.initializeRoutes();
-  }
+    this.route.get('/me', auth, utilService.responseFormatter({ handler: (req: Request) => userService.getMe(req.payload as JwtPayload) }));
 
-  private initializeRoutes(): void {
-    this.route.get(
-      '/profile',
-      authGuard.check(TokenTypeEnum.ACCESS),
+    this.route.patch(
+      '/me',
+      auth,
+      validationPipe.schema(UpdateMeDTO.schema),
+      utilService.responseFormatter({ handler: (req: Request) => userService.updateMe(req.validated!.body as UpdateMeBody, req.payload as JwtPayload) }),
+    );
+
+    this.route.patch(
+      '/me/avatar',
+      auth,
+      imageUpload('avatar', 'avatars'),
       utilService.responseFormatter({
-        handler: async (req: Request, res: Response, next: NextFunction) => {
-          const user = await userRepository.findById(utilService.toObjectId(req.payload?.sub as string));
-          return {
-            messageCode: 200,
-            data: user,
-          };
-        },
+        handler: (req: Request) => userService.changeImage('image', req.file as Express.Multer.File, req.payload as JwtPayload),
       }),
     );
 
-    this.route.put(
-      '/change-privacy',
-      authGuard.check(TokenTypeEnum.ACCESS),
-      roleGuard.access([SystemRoleEnum.USER]),
+    this.route.patch(
+      '/me/cover-image',
+      auth,
+      imageUpload('coverImage', 'cover-images'),
       utilService.responseFormatter({
-        handler: async (req: Request, res: Response, next: NextFunction) => {
-          return await userService.changePrivacy(req.body, req.payload as JwtPayload);
-        },
-      }),
-    );
-
-    this.route.put(
-      '/change-avatar',
-      authGuard.check(TokenTypeEnum.ACCESS),
-      roleGuard.access([SystemRoleEnum.USER]),
-      uploadPipe.uploadMiddleware({
-        multerMiddleware: storageService
-          .localFileStorage({
-            maxFileSize: 5,
-            validation: fileFieldValidation.image,
-            customPath: 'avatars',
-          })
-          .single('avatar'),
-        customPath: 'avatars',
-        validation: fileFieldValidation.image,
-      }),
-      utilService.responseFormatter({
-        handler: async (req: Request, res: Response, next: NextFunction) => {
-          return await userService.changeAvatar(req.file as Express.Multer.File, req.payload as JwtPayload);
-        },
-      }),
-    );
-
-    this.route.put(
-      '/change-cover-image',
-      authGuard.check(TokenTypeEnum.ACCESS),
-      roleGuard.access([SystemRoleEnum.USER]),
-      uploadPipe.uploadMiddleware({
-        multerMiddleware: storageService
-          .localFileStorage({
-            maxFileSize: 5,
-            validation: fileFieldValidation.image,
-            customPath: 'cover-images',
-          })
-          .single('coverImage'),
-        customPath: 'cover-images',
-        validation: fileFieldValidation.image,
-      }),
-      utilService.responseFormatter({
-        handler: async (req: Request) => {
-          return await userService.changeCoverImage(req.file as Express.Multer.File, req.payload as JwtPayload);
-        },
-      }),
-    );
-
-    this.route.put(
-      '/change-bio',
-      authGuard.check(TokenTypeEnum.ACCESS),
-      roleGuard.access([SystemRoleEnum.USER]),
-      validationPipe.schema(userDTO.bioUpdateDTO),
-      utilService.responseFormatter({
-        handler: async (req: Request) => {
-          return await userService.updateBio(req.body, req.payload as JwtPayload);
-        },
+        handler: (req: Request) => userService.changeImage('coverImage', req.file as Express.Multer.File, req.payload as JwtPayload),
       }),
     );
 
     this.route.get(
-      '/search/:search{/:page}{/:size}',
-      authGuard.check(TokenTypeEnum.ACCESS),
-      utilService.responseFormatter({
-        handler: async (req: Request, res: Response, next: NextFunction) => {
-          const page = Number(req.params['page'] ?? 1);
-          const size = Number(req.params['size'] ?? 10);
-          const searchParam = req.params['search'];
-          const search = Array.isArray(searchParam) ? (searchParam[0] ?? '') : (searchParam ?? '');
-
-          return await userService.search(search, Number.isInteger(page) && page > 0 ? page : 1, Number.isInteger(size) && size > 0 ? size : 10);
-        },
-      }),
+      '/search',
+      auth,
+      validationPipe.schema(SearchUsersDTO.schema),
+      utilService.responseFormatter({ handler: (req: Request) => userService.search(req.validated!.query as SearchUsersQuery, req.payload as JwtPayload) }),
     );
 
     this.route.get(
-      '/suggestions{/:page}{/:size}',
-      authGuard.check(TokenTypeEnum.ACCESS),
-      utilService.responseFormatter({
-        handler: async (req: Request) => {
-          const page = Number(req.params['page'] ?? 1);
-          const size = Number(req.params['size'] ?? 10);
+      '/suggestions',
+      auth,
+      validationPipe.schema(SuggestUsersDTO.schema),
+      utilService.responseFormatter({ handler: (req: Request) => userService.suggest(req.validated!.query as SuggestUsersQuery, req.payload as JwtPayload) }),
+    );
 
-          return await userService.suggest(
-            req.payload as JwtPayload,
-            Number.isInteger(page) && page > 0 ? page : 1,
-            Number.isInteger(size) && size > 0 ? size : 10,
-          );
-        },
-      }),
+    this.route.get(
+      '/:userId',
+      auth,
+      validationPipe.schema(UserIdDTO.schema),
+      utilService.responseFormatter({ handler: (req: Request) => userService.getProfile(userId(req), req.payload as JwtPayload) }),
+    );
+
+    for (const list of ['followers', 'following', 'posts'] as const) {
+      this.route.get(
+        `/:userId/${list}`,
+        auth,
+        validationPipe.schema(UserListDTO.schema),
+        utilService.responseFormatter({
+          handler: (req: Request) => userService[list](userId(req), req.validated!.query as UserListQuery, req.payload as JwtPayload),
+        }),
+      );
+    }
+
+    this.route.post(
+      '/:userId/block',
+      auth,
+      validationPipe.schema(UserIdDTO.schema),
+      utilService.responseFormatter({ handler: (req: Request) => userService.block(userId(req), req.payload as JwtPayload) }),
+    );
+
+    this.route.delete(
+      '/:userId/block',
+      auth,
+      validationPipe.schema(UserIdDTO.schema),
+      utilService.responseFormatter({ handler: (req: Request) => userService.unblock(userId(req), req.payload as JwtPayload) }),
+    );
+
+    this.route.delete(
+      '/:userId/follow',
+      auth,
+      validationPipe.schema(UserIdDTO.schema),
+      utilService.responseFormatter({ handler: (req: Request) => userService.unfollow(userId(req), req.payload as JwtPayload) }),
     );
   }
 }

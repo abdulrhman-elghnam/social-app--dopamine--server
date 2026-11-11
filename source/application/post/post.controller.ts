@@ -10,30 +10,27 @@ import {
   CreatePostDTO,
   GetPostsDTO,
   PostIdDTO,
+  SharePostDTO,
   UpdatePostDTO,
   type CreatePostBody,
   type GetPostsQuery,
   type PostIdParams,
+  type SharePostBody,
   type UpdatePostBody,
 } from './dto/post.dto.js';
 import { postService } from './post.service.js';
 
+/** Mounted at `/posts`. Comments of a post live in the comment module (`/posts/:postId/comments`). */
 class PostController {
-  public readonly route: RouterType;
+  public readonly route: RouterType = Router({ caseSensitive: true, strict: true });
 
   constructor() {
-    this.route = Router({
-      caseSensitive: true,
-      strict: true,
-      mergeParams: true,
-    });
-    this.initializeRoutes();
-  }
+    const auth = authGuard.check(TokenTypeEnum.ACCESS);
+    const postId = (req: Request) => (req.validated!.params as PostIdParams).postId;
 
-  private initializeRoutes(): void {
     this.route.post(
       '/',
-      authGuard.check(TokenTypeEnum.ACCESS),
+      auth,
       validationPipe.schema(CreatePostDTO.schema),
       utilService.responseFormatter({
         handler: (req: Request) => postService.createPost(req.validated!.body as CreatePostBody, req.payload as JwtPayload),
@@ -42,38 +39,70 @@ class PostController {
 
     this.route.get(
       '/',
-      authGuard.check(TokenTypeEnum.ACCESS),
+      auth,
       validationPipe.schema(GetPostsDTO.schema),
       utilService.responseFormatter({
-        handler: (req: Request) => postService.getMyPosts(req.validated!.query as GetPostsQuery, req.payload as JwtPayload),
+        handler: (req: Request) => postService.getFeed(req.validated!.query as GetPostsQuery, req.payload as JwtPayload),
       }),
     );
 
     this.route.get(
       '/:postId',
-      authGuard.check(TokenTypeEnum.ACCESS),
+      auth,
       validationPipe.schema(PostIdDTO.schema),
-      utilService.responseFormatter({
-        handler: (req: Request) => postService.getPost((req.validated!.params as PostIdParams).postId, req.payload as JwtPayload),
-      }),
+      utilService.responseFormatter({ handler: (req: Request) => postService.getPost(postId(req), req.payload as JwtPayload) }),
     );
 
     this.route.patch(
       '/:postId',
-      authGuard.check(TokenTypeEnum.ACCESS),
+      auth,
       validationPipe.schema(UpdatePostDTO.schema),
       utilService.responseFormatter({
-        handler: (req: Request) =>
-          postService.updatePost((req.validated!.params as PostIdParams).postId, req.validated!.body as UpdatePostBody, req.payload as JwtPayload),
+        handler: (req: Request) => postService.updatePost(postId(req), req.validated!.body as UpdatePostBody, req.payload as JwtPayload),
       }),
     );
 
     this.route.delete(
       '/:postId',
-      authGuard.check(TokenTypeEnum.ACCESS),
+      auth,
       validationPipe.schema(PostIdDTO.schema),
+      utilService.responseFormatter({ handler: (req: Request) => postService.deletePost(postId(req), req.payload as JwtPayload) }),
+    );
+
+    this.route.post(
+      '/:postId/like',
+      auth,
+      validationPipe.schema(PostIdDTO.schema),
+      utilService.responseFormatter({ handler: (req: Request) => postService.like(postId(req), req.payload as JwtPayload) }),
+    );
+
+    this.route.delete(
+      '/:postId/like',
+      auth,
+      validationPipe.schema(PostIdDTO.schema),
+      utilService.responseFormatter({ handler: (req: Request) => postService.unlike(postId(req), req.payload as JwtPayload) }),
+    );
+
+    this.route.post(
+      '/:postId/save',
+      auth,
+      validationPipe.schema(PostIdDTO.schema),
+      utilService.responseFormatter({ handler: (req: Request) => postService.save(postId(req), req.payload as JwtPayload) }),
+    );
+
+    this.route.delete(
+      '/:postId/save',
+      auth,
+      validationPipe.schema(PostIdDTO.schema),
+      utilService.responseFormatter({ handler: (req: Request) => postService.unsave(postId(req), req.payload as JwtPayload) }),
+    );
+
+    this.route.post(
+      '/:postId/share',
+      auth,
+      validationPipe.schema(SharePostDTO.schema),
       utilService.responseFormatter({
-        handler: (req: Request) => postService.deletePost((req.validated!.params as PostIdParams).postId, req.payload as JwtPayload),
+        handler: (req: Request) => postService.share(postId(req), req.validated!.body as SharePostBody, req.payload as JwtPayload),
       }),
     );
   }

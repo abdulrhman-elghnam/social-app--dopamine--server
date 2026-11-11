@@ -1,0 +1,91 @@
+@Host = http://127.0.0.1:9090
+@AcceptLanguage = en
+# Paste an access token from POST /auth/login
+@token = ACCESS_TOKEN
+@id = RESOURCE_ID
+@userId = USER_ID
+
+### Notifications (?unread=true for unread only; meta.unreadCount)
+GET {{Host}}/notifications?page=1&size=20
+Authorization: Bearer {{token}}
+
+###
+PATCH {{Host}}/notifications/read-all
+Authorization: Bearer {{token}}
+
+###
+PATCH {{Host}}/notifications/{{id}}/read
+Authorization: Bearer {{token}}
+
+###
+DELETE {{Host}}/notifications/{{id}}
+Authorization: Bearer {{token}}
+
+### Conversations (send/edit/delete messages over Socket.IO)
+GET {{Host}}/conversations
+Authorization: Bearer {{token}}
+
+### Direct chat (returns the existing one if present)
+POST {{Host}}/conversations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "participantIds": ["{{userId}}"] }
+
+### Group (name + at least two others)
+POST {{Host}}/conversations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "isGroup": true, "groupName": "Team", "participantIds": ["USER_1", "USER_2"] }
+
+###
+GET {{Host}}/conversations/{{id}}
+Authorization: Bearer {{token}}
+
+### Update group (admins only)
+PATCH {{Host}}/conversations/{{id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "groupName": "Team 2", "addMembers": ["USER_3"], "removeMembers": [] }
+
+###
+GET {{Host}}/conversations/{{id}}/messages?page=1&size=30
+Authorization: Bearer {{token}}
+
+###
+PATCH {{Host}}/conversations/{{id}}/mute
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "muted": true }
+
+### Mark read up to messageId (omit for "everything")
+PATCH {{Host}}/conversations/{{id}}/read
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{}
+
+### Report (targetType: user | post | comment)
+POST {{Host}}/reports
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "targetType": "post", "targetId": "{{id}}", "reason": "Spam", "description": "Repeated ads" }
+
+### Admin: list (?status=pending&targetType=post)
+GET {{Host}}/reports?status=pending
+Authorization: Bearer {{token}}
+
+### Admin or reporter
+GET {{Host}}/reports/{{id}}
+Authorization: Bearer {{token}}
+
+### Admin: review (reviewed | resolved | rejected)
+PATCH {{Host}}/reports/{{id}}/review
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "status": "resolved" }
