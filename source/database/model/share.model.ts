@@ -15,7 +15,7 @@ const shareSchema = new Schema<IShare>(
     },
     content: String,
   },
-  { timestamps: { createdAt: true, updatedAt: false } }
+  { timestamps: { createdAt: true, updatedAt: false } },
 );
 
 shareSchema.index({ user: 1, createdAt: -1 });

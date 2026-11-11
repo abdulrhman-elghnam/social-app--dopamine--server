@@ -20,7 +20,7 @@ const followRequestSchema = new Schema<IFollowRequest>(
       default: FollowRequestStatusEnum.PENDING,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 followRequestSchema.index({ requester: 1, recipient: 1 }, { unique: true });

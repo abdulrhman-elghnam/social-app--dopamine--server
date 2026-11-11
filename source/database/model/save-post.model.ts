@@ -14,7 +14,7 @@ const savedPostSchema = new Schema<ISavedPost>(
       required: true,
     },
   },
-  { timestamps: { createdAt: true, updatedAt: false } }
+  { timestamps: { createdAt: true, updatedAt: false } },
 );
 
 savedPostSchema.index({ user: 1, post: 1 }, { unique: true });

@@ -24,7 +24,7 @@ export class AppController {
             messageCode: 101,
           };
         },
-      })
+      }),
     );
 
     this.route.use((req, res, next) => {

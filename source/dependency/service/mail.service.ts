@@ -1,8 +1,4 @@
-import nodemailer, {
-  type SendMailOptions,
-  type SentMessageInfo,
-  type Transporter,
-} from 'nodemailer';
+import nodemailer, { type SendMailOptions, type SentMessageInfo, type Transporter } from 'nodemailer';
 import { configService } from './config.service.js';
 
 export interface SendEmailOptions {
@@ -22,7 +18,7 @@ const escapeHtml = (value: string): string =>
         '>': '&gt;',
         '"': '&quot;',
         "'": '&#039;',
-      })[character] ?? character
+      })[character] ?? character,
   );
 
 export class MailService {

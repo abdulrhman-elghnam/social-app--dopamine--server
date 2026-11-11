@@ -29,7 +29,7 @@ const conversationMemberSchema = new Schema<IConversationMember>(
     },
     isMuted: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 conversationMemberSchema.index({ conversation: 1, user: 1 }, { unique: true });
@@ -38,7 +38,4 @@ conversationMemberSchema.index({ user: 1, updatedAt: -1 });
 
 export type HConversationMemberDocument = HydratedDocument<IConversationMember>;
 
-export const ConversationMemberModel = model<IConversationMember>(
-  'ConversationMember',
-  conversationMemberSchema
-);
+export const ConversationMemberModel = model<IConversationMember>('ConversationMember', conversationMemberSchema);

@@ -12,33 +12,28 @@ export const fileFieldValidation = {
   video: ['video/mp4'],
 } as const;
 
-interface UploadOptions {
+interface StorageOptions {
   maxFileSize?: number;
   validation?: readonly string[];
   customPath?: string;
 }
 
-interface ProcessFileOptions extends UploadOptions {
+interface ProcessFileOptions extends StorageOptions {
   file: Express.Multer.File;
 }
 
-interface ProcessFilesOptions extends UploadOptions {
+interface ProcessFilesOptions extends StorageOptions {
   files: Express.Multer.File[];
 }
 
-interface ProcessFieldsOptions extends UploadOptions {
+interface ProcessFieldsOptions extends StorageOptions {
   fields: Record<string, Express.Multer.File[]>;
 }
 
-const invalidFormatError = () =>
-  new BadRequestException('Invalid file format', { messageCode: 603 });
+const invalidFormatError = () => new BadRequestException('Invalid file format', { messageCode: 603 });
 
-export class UploadService {
-  localFileUpload = ({
-    maxFileSize = 5,
-    validation = [],
-    customPath = 'general',
-  }: UploadOptions = {}) => {
+export class StorageService {
+  localFileStorage = ({ maxFileSize = 5, validation = [], customPath = 'general' }: StorageOptions = {}) => {
     const destination = `./assets/${customPath}`;
 
     const storage = multer.diskStorage({
@@ -91,11 +86,7 @@ export class UploadService {
     return file;
   };
 
-  processFiles = async ({
-    customPath = 'general',
-    files = [],
-    validation = [],
-  }: ProcessFilesOptions) => {
+  processFiles = async ({ customPath = 'general', files = [], validation = [] }: ProcessFilesOptions) => {
     const assets: Express.Multer.File[] = [];
 
     for (const file of files) {
@@ -105,11 +96,7 @@ export class UploadService {
     return assets;
   };
 
-  processFields = async ({
-    customPath = 'general',
-    fields = {},
-    validation = [],
-  }: ProcessFieldsOptions) => {
+  processFields = async ({ customPath = 'general', fields = {}, validation = [] }: ProcessFieldsOptions) => {
     const assets: Array<{ field: string; files: Express.Multer.File[] }> = [];
 
     for (const [field, files] of Object.entries(fields)) {
@@ -122,7 +109,7 @@ export class UploadService {
     return assets;
   };
 
-  processMulterUpload = ({ customPath = 'general', validation = [] }: UploadOptions = {}) => {
+  processMulterStorage = ({ customPath = 'general', validation = [] }: StorageOptions = {}) => {
     return async (req: Request, _res: Response, next: NextFunction) => {
       try {
         if (req.file) {
@@ -152,4 +139,4 @@ export class UploadService {
   };
 }
 
-export const uploadService = new UploadService();
+export const storageService = new StorageService();

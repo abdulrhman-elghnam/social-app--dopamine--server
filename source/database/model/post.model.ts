@@ -13,7 +13,7 @@ const mediaSchema = new Schema(
     size: Number,
     thumbnailUrl: String,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const postSchema = new Schema<IPost>(
@@ -40,7 +40,7 @@ const postSchema = new Schema<IPost>(
     editedAt: Date,
     deletedAt: Date,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 postSchema.index({ author: 1, createdAt: -1 });

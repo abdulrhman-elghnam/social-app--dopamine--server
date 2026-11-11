@@ -1,6 +1,6 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { BadRequestException } from '../exception/main.exception.js';
-import { uploadService } from '../service/upload.service.js';
+import { storageService } from '../service/storage.service.js';
 
 interface UploadMiddlewareOptions {
   multerMiddleware: RequestHandler;
@@ -10,12 +10,7 @@ interface UploadMiddlewareOptions {
 }
 
 export class UploadPipe {
-  uploadMiddleware = ({
-    multerMiddleware,
-    customPath = 'general',
-    validation = [],
-    isRequired = true,
-  }: UploadMiddlewareOptions): RequestHandler => {
+  uploadMiddleware = ({ multerMiddleware, customPath = 'general', validation = [], isRequired = true }: UploadMiddlewareOptions): RequestHandler => {
     return (req: Request, res: Response, next: NextFunction) => {
       multerMiddleware(req, res, async (error?: unknown) => {
         if (error) {
@@ -23,7 +18,7 @@ export class UploadPipe {
           return next(
             new BadRequestException(uploadError.message || 'Invalid upload', {
               extra: uploadError,
-            })
+            }),
           );
         }
 
@@ -33,7 +28,7 @@ export class UploadPipe {
         }
 
         try {
-          const processUpload = uploadService.processMulterUpload({
+          const processUpload = storageService.processMulterStorage({
             customPath,
             validation,
           });

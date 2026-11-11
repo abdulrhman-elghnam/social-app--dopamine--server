@@ -10,6 +10,14 @@ export class UserRepository extends DatabaseRepository<IUser> {
     super(UserModel);
   }
 
+  /** Adjusts postsCount by ±1 without going below zero. */
+  async changePostsCount(userId: Types.ObjectId, amount: 1 | -1): Promise<void> {
+    await this.updateOne({
+      filter: amount < 0 ? { _id: userId, postsCount: { $gt: 0 } } : { _id: userId },
+      data: { $inc: { postsCount: amount } },
+    });
+  }
+
   async updateFollowCounts({
     followerId,
     followingId,
@@ -20,44 +28,28 @@ export class UserRepository extends DatabaseRepository<IUser> {
     amount: 1 | -1;
   }): Promise<void> {
     await Promise.all([
-      UserModel.updateOne(
-        { _id: followingId },
-        [
-          {
-            $set: {
-              followersCount: {
-                $max: [{ $add: [{ $ifNull: ['$followersCount', 0] }, amount] }, 0],
-              },
+      UserModel.updateOne({ _id: followingId }, [
+        {
+          $set: {
+            followersCount: {
+              $max: [{ $add: [{ $ifNull: ['$followersCount', 0] }, amount] }, 0],
             },
           },
-        ]
-      ).exec(),
-      UserModel.updateOne(
-        { _id: followerId },
-        [
-          {
-            $set: {
-              followingCount: {
-                $max: [{ $add: [{ $ifNull: ['$followingCount', 0] }, amount] }, 0],
-              },
+        },
+      ]).exec(),
+      UserModel.updateOne({ _id: followerId }, [
+        {
+          $set: {
+            followingCount: {
+              $max: [{ $add: [{ $ifNull: ['$followingCount', 0] }, amount] }, 0],
             },
           },
-        ]
-      ).exec(),
+        },
+      ]).exec(),
     ]);
   }
 
-  async searchUsers({
-    search,
-    filter = {},
-    page = 1,
-    size = 10,
-  }: {
-    search: string;
-    filter?: QueryFilter<IUser>;
-    page?: number;
-    size?: number;
-  }) {
+  async searchUsers({ search, filter = {}, page = 1, size = 10 }: { search: string; filter?: QueryFilter<IUser>; page?: number; size?: number }) {
     const searchValue = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     const searchFilter: QueryFilter<IUser> = {
@@ -93,15 +85,7 @@ export class UserRepository extends DatabaseRepository<IUser> {
     };
   }
 
-  async suggestUsers({
-    userId,
-    page = 1,
-    size = 10,
-  }: {
-    userId: Types.ObjectId | string;
-    page?: number;
-    size?: number;
-  }) {
+  async suggestUsers({ userId, page = 1, size = 10 }: { userId: Types.ObjectId | string; page?: number; size?: number }) {
     const currentUserId = new Types.ObjectId(userId);
     const followingIds = await FollowModel.distinct('following', { follower: currentUserId });
     const excludedIds = [currentUserId, ...followingIds.map((id) => new Types.ObjectId(id))];
@@ -115,12 +99,7 @@ export class UserRepository extends DatabaseRepository<IUser> {
     const skip = (currentPage - 1) * pageSize;
 
     const [data, totalDocuments] = await Promise.all([
-      UserModel.find(filter)
-        .skip(skip)
-        .limit(pageSize)
-        .sort({ followersCount: -1, createdAt: -1 })
-        .lean()
-        .exec(),
+      UserModel.find(filter).skip(skip).limit(pageSize).sort({ followersCount: -1, createdAt: -1 }).lean().exec(),
       UserModel.countDocuments(filter).exec(),
     ]);
 

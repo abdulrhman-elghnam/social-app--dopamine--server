@@ -26,12 +26,7 @@ export class LanguageService {
         try {
           return await fs.readFile(location, 'utf-8');
         } catch (error) {
-          if (
-            typeof error === 'object' &&
-            error !== null &&
-            'code' in error &&
-            error.code === 'ENOENT'
-          ) {
+          if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'ENOENT') {
             lastError = error;
             continue;
           }
@@ -47,24 +42,14 @@ export class LanguageService {
     this.englishLanguage = JSON.parse(english);
   }
 
-  chooseLanguage = (
-    language: ApiLanguage | string = ApiLanguage.ENGLISH,
-    code: number = 103
-  ): string => {
+  chooseLanguage = (language: ApiLanguage | string = ApiLanguage.ENGLISH, code: number = 103): string => {
     const normalizedLanguage = (language.split(',')[0] ?? '').split(';')[0]?.trim().toLowerCase();
 
-    const messages = normalizedLanguage?.startsWith('ar')
-      ? this.arabicLanguage
-      : this.englishLanguage;
+    const messages = normalizedLanguage?.startsWith('ar') ? this.arabicLanguage : this.englishLanguage;
 
     const messageKey = String(code);
 
-    return (
-      messages[messageKey] ??
-      this.englishLanguage[messageKey] ??
-      this.englishLanguage['103'] ??
-      'An error occurred'
-    );
+    return messages[messageKey] ?? this.englishLanguage[messageKey] ?? this.englishLanguage['103'] ?? 'An error occurred';
   };
 }
 

@@ -1,10 +1,5 @@
 import { HydratedDocument, model, Schema } from 'mongoose';
-import {
-  GenderEnum,
-  ProviderEnum,
-  SystemRoleEnum,
-  UserPrivacyControllerEnum,
-} from '../../dependency/value/database.enum.js';
+import { GenderEnum, ProviderEnum, SystemRoleEnum, UserPrivacyControllerEnum } from '../../dependency/value/database.enum.js';
 import type { IUser } from '../../dependency/interface/database.interface.js';
 import { securityService } from '../../dependency/service/security.service.js';
 
@@ -37,7 +32,7 @@ const userSchema = new Schema<HUserDocument>(
     postsCount: { type: Number, default: 0 },
     changeCredentialsTime: Date,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.pre('save', async function hashPassword() {

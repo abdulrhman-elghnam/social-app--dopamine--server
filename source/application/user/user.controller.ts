@@ -6,11 +6,12 @@ import { SystemRoleEnum, TokenTypeEnum } from '../../dependency/value/security.e
 import { JwtPayload } from 'jsonwebtoken';
 import { roleGuard } from '../../dependency/guard/role.guard.js';
 import { utilService } from '../../dependency/service/util.service.js';
-import { userRepository } from '../../database/repo/user.repository.js';
-import { uploadService, fileFieldValidation } from '../../dependency/service/upload.service.js';
+import { userRepository } from '../../database/repository/user.repository.js';
+
 import { uploadPipe } from '../../dependency/pipe/upload.pipe.js';
 import { validationPipe } from '../../dependency/pipe/validation.pipe.js';
 import { userDTO } from './dto/user.dto.js';
+import { fileFieldValidation, storageService } from '../../dependency/service/storage.service.js';
 
 class UserController {
   public readonly route: RouterType;
@@ -31,15 +32,13 @@ class UserController {
       authGuard.check(TokenTypeEnum.ACCESS),
       utilService.responseFormatter({
         handler: async (req: Request, res: Response, next: NextFunction) => {
-          const user = await userRepository.findById(
-            utilService.toObjectId(req.payload?.sub as string)
-          );
+          const user = await userRepository.findById(utilService.toObjectId(req.payload?.sub as string));
           return {
             messageCode: 200,
             data: user,
           };
         },
-      })
+      }),
     );
 
     this.route.put(
@@ -50,7 +49,7 @@ class UserController {
         handler: async (req: Request, res: Response, next: NextFunction) => {
           return await userService.changePrivacy(req.body, req.payload as JwtPayload);
         },
-      })
+      }),
     );
 
     this.route.put(
@@ -58,8 +57,8 @@ class UserController {
       authGuard.check(TokenTypeEnum.ACCESS),
       roleGuard.access([SystemRoleEnum.USER]),
       uploadPipe.uploadMiddleware({
-        multerMiddleware: uploadService
-          .localFileUpload({
+        multerMiddleware: storageService
+          .localFileStorage({
             maxFileSize: 5,
             validation: fileFieldValidation.image,
             customPath: 'avatars',
@@ -70,12 +69,9 @@ class UserController {
       }),
       utilService.responseFormatter({
         handler: async (req: Request, res: Response, next: NextFunction) => {
-          return await userService.changeAvatar(
-            req.file as Express.Multer.File,
-            req.payload as JwtPayload
-          );
+          return await userService.changeAvatar(req.file as Express.Multer.File, req.payload as JwtPayload);
         },
-      })
+      }),
     );
 
     this.route.put(
@@ -83,8 +79,8 @@ class UserController {
       authGuard.check(TokenTypeEnum.ACCESS),
       roleGuard.access([SystemRoleEnum.USER]),
       uploadPipe.uploadMiddleware({
-        multerMiddleware: uploadService
-          .localFileUpload({
+        multerMiddleware: storageService
+          .localFileStorage({
             maxFileSize: 5,
             validation: fileFieldValidation.image,
             customPath: 'cover-images',
@@ -95,12 +91,9 @@ class UserController {
       }),
       utilService.responseFormatter({
         handler: async (req: Request) => {
-          return await userService.changeCoverImage(
-            req.file as Express.Multer.File,
-            req.payload as JwtPayload
-          );
+          return await userService.changeCoverImage(req.file as Express.Multer.File, req.payload as JwtPayload);
         },
-      })
+      }),
     );
 
     this.route.put(
@@ -112,7 +105,7 @@ class UserController {
         handler: async (req: Request) => {
           return await userService.updateBio(req.body, req.payload as JwtPayload);
         },
-      })
+      }),
     );
 
     this.route.get(
@@ -125,13 +118,9 @@ class UserController {
           const searchParam = req.params['search'];
           const search = Array.isArray(searchParam) ? (searchParam[0] ?? '') : (searchParam ?? '');
 
-          return await userService.search(
-            search,
-            Number.isInteger(page) && page > 0 ? page : 1,
-            Number.isInteger(size) && size > 0 ? size : 10
-          );
+          return await userService.search(search, Number.isInteger(page) && page > 0 ? page : 1, Number.isInteger(size) && size > 0 ? size : 10);
         },
-      })
+      }),
     );
 
     this.route.get(
@@ -145,10 +134,10 @@ class UserController {
           return await userService.suggest(
             req.payload as JwtPayload,
             Number.isInteger(page) && page > 0 ? page : 1,
-            Number.isInteger(size) && size > 0 ? size : 10
+            Number.isInteger(size) && size > 0 ? size : 10,
           );
         },
-      })
+      }),
     );
   }
 }

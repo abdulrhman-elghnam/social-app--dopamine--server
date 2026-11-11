@@ -13,7 +13,7 @@ const messageMediaSchema = new Schema(
     size: Number,
     thumbnailUrl: String,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const messageSchema = new Schema<IMessage>(
@@ -57,7 +57,7 @@ const messageSchema = new Schema<IMessage>(
     editedAt: Date,
     deletedAt: Date,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 messageSchema.index({ conversation: 1, createdAt: -1 });

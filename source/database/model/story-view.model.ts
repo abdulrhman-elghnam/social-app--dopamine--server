@@ -15,7 +15,7 @@ const storyViewSchema = new Schema<IStoryView>(
     },
     viewedAt: { type: Date, default: Date.now },
   },
-  { timestamps: false }
+  { timestamps: false },
 );
 
 storyViewSchema.index({ story: 1, user: 1 }, { unique: true });

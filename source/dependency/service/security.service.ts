@@ -22,9 +22,7 @@ export class SecurityService {
     const iv = crypto.randomBytes(this.ivLength);
     const cipher = crypto.createCipheriv('aes-256-cbc', this.encryptionKey, iv);
 
-    const encryptedText = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]).toString(
-      'hex'
-    );
+    const encryptedText = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]).toString('hex');
 
     return `${iv.toString('hex')}:${encryptedText}`;
   }
@@ -49,15 +47,9 @@ export class SecurityService {
       throw new Error('Invalid encrypted data format');
     }
 
-    const decipher = crypto.createDecipheriv(
-      'aes-256-cbc',
-      this.encryptionKey,
-      Buffer.from(ivHex, 'hex')
-    );
+    const decipher = crypto.createDecipheriv('aes-256-cbc', this.encryptionKey, Buffer.from(ivHex, 'hex'));
 
-    return Buffer.concat([decipher.update(encryptedText, 'hex'), decipher.final()]).toString(
-      'utf8'
-    );
+    return Buffer.concat([decipher.update(encryptedText, 'hex'), decipher.final()]).toString('utf8');
   }
 
   async hash(plainText: string): Promise<string> {

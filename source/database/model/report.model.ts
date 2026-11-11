@@ -43,7 +43,7 @@ const reportSchema = new Schema<IReport>(
     },
     reviewedAt: Date,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 reportSchema.index({ status: 1, createdAt: -1 });

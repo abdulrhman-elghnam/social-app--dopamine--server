@@ -3,16 +3,13 @@ import { UserDTO } from './dto/user.dto.js';
 import { IHandlerResult, utilService } from '../../dependency/service/util.service.js';
 import { UserPrivacyControllerEnum } from '../../dependency/value/database.enum.js';
 import type { JwtPayload } from 'jsonwebtoken';
-import { userRepository } from '../../database/repo/user.repository.js';
+import { userRepository } from '../../database/repository/user.repository.js';
 import { NotFoundException } from '../../dependency/exception/main.exception.js';
 
 class UserService {
   constructor() {}
 
-  async changePrivacy(
-    { action }: z.infer<ReturnType<UserDTO['privacyChangeDTO']>['body']>,
-    payload: JwtPayload
-  ): Promise<IHandlerResult> {
+  async changePrivacy({ action }: z.infer<ReturnType<UserDTO['privacyChangeDTO']>['body']>, payload: JwtPayload): Promise<IHandlerResult> {
     console.log(payload);
 
     const user = await userRepository.findById(utilService.toObjectId(payload.sub as string));
@@ -79,10 +76,7 @@ class UserService {
     };
   }
 
-  async updateBio(
-    { bio }: z.infer<ReturnType<UserDTO['bioUpdateDTO']>['body']>,
-    payload: JwtPayload
-  ): Promise<IHandlerResult> {
+  async updateBio({ bio }: z.infer<ReturnType<UserDTO['bioUpdateDTO']>['body']>, payload: JwtPayload): Promise<IHandlerResult> {
     const user = await userRepository.findById(utilService.toObjectId(payload.sub as string));
 
     if (!user) {

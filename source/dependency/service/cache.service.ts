@@ -65,15 +65,7 @@ export class CacheService {
     }
   }
 
-  async setCache<T>({
-    key,
-    value,
-    options = {},
-  }: {
-    key: string;
-    value: T;
-    options?: CacheSetOptions;
-  }): Promise<boolean> {
+  async setCache<T>({ key, value, options = {} }: { key: string; value: T; options?: CacheSetOptions }): Promise<boolean> {
     const { EX, PX, NX, XX } = options;
     const ttlCount = [EX !== undefined, PX !== undefined].filter(Boolean).length;
     if (ttlCount > 1) throw new Error('EX and PX are mutually exclusive');

@@ -1,11 +1,7 @@
 import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import { randomUUID } from 'node:crypto';
 import { Types } from 'mongoose';
-import {
-  BadRequestException,
-  ConflictException,
-  UnauthorizedException,
-} from '../exception/main.exception.js';
+import { BadRequestException, ConflictException, UnauthorizedException } from '../exception/main.exception.js';
 import { SystemRoleEnum, TokenTypeEnum } from '../value/security.enum.js';
 import { cacheService, RedisKeys } from './cache.service.js';
 import { configService } from './config.service.js';
@@ -20,14 +16,8 @@ export class TokenService {
   private readonly refreshExpiresIn: number;
 
   constructor() {
-    this.accessExpiresIn = this.readPositiveInteger(
-      configService.getOrThrow('ACCESS_USER_TOKEN_EXPIRY'),
-      'ACCESS_USER_TOKEN_EXPIRY'
-    );
-    this.refreshExpiresIn = this.readPositiveInteger(
-      configService.getOrThrow('REFRESH_SYSTEM_TOKEN_EXPIRY'),
-      'REFRESH_SYSTEM_TOKEN_EXPIRY'
-    );
+    this.accessExpiresIn = this.readPositiveInteger(configService.getOrThrow('ACCESS_USER_TOKEN_EXPIRY'), 'ACCESS_USER_TOKEN_EXPIRY');
+    this.refreshExpiresIn = this.readPositiveInteger(configService.getOrThrow('REFRESH_SYSTEM_TOKEN_EXPIRY'), 'REFRESH_SYSTEM_TOKEN_EXPIRY');
   }
 
   private readPositiveInteger(value: string, name: string): number {
@@ -75,10 +65,7 @@ export class TokenService {
     return payload;
   }
 
-  async decodeToken(
-    token: string,
-    expectedType: TokenTypeEnum = TokenTypeEnum.ACCESS
-  ): Promise<JwtPayload> {
+  async decodeToken(token: string, expectedType: TokenTypeEnum = TokenTypeEnum.ACCESS): Promise<JwtPayload> {
     const rawToken = this.extractBearerToken(token);
     const claimed = this.decode(rawToken);
     if (!Array.isArray(claimed.aud) || claimed.aud.length !== 2) {
@@ -102,9 +89,7 @@ export class TokenService {
     const role = claimedRole as SystemRoleEnum;
 
     const verified = this.verify(token, this.getSecret(expectedType));
-    const activeType = await cacheService.getCache<TokenTypeEnum>(
-      RedisKeys.userToken(verified.sub ?? '', verified.jti ?? '')
-    );
+    const activeType = await cacheService.getCache<TokenTypeEnum>(RedisKeys.userToken(verified.sub ?? '', verified.jti ?? ''));
     if (activeType !== expectedType) {
       throw new UnauthorizedException('Invalid login session');
     }
@@ -115,10 +100,7 @@ export class TokenService {
     return verified;
   }
 
-  async createLoginCredentials(
-    user: LoginCredentialsUser,
-    issuer: string
-  ): Promise<{ access_token: string; refresh_token: string }> {
+  async createLoginCredentials(user: LoginCredentialsUser, issuer: string): Promise<{ access_token: string; refresh_token: string }> {
     const subject = user._id.toString();
     const accessJti = randomUUID();
     const refreshJti = randomUUID();
@@ -132,7 +114,7 @@ export class TokenService {
           audience: [TokenTypeEnum.ACCESS, user.role],
           expiresIn: this.accessExpiresIn,
           jwtid: accessJti,
-        })
+        }),
       ),
       Promise.resolve(
         this.sign({ sub: subject }, refreshSecret, {
@@ -140,7 +122,7 @@ export class TokenService {
           audience: [TokenTypeEnum.REFRESH, user.role],
           expiresIn: this.refreshExpiresIn,
           jwtid: refreshJti,
-        })
+        }),
       ),
     ]);
 
@@ -168,10 +150,7 @@ export class TokenService {
     return cacheService.deleteCache(RedisKeys.userToken(userId.toString(), tokenId));
   }
 
-  async rotateRefreshToken(
-    token: string,
-    issuer: string
-  ): Promise<{ access_token: string; refresh_token: string }> {
+  async rotateRefreshToken(token: string, issuer: string): Promise<{ access_token: string; refresh_token: string }> {
     const bearerToken = /^Bearer\s+/i.test(token.trim()) ? token.trim() : `Bearer ${token.trim()}`;
     const decoded = await this.decodeToken(bearerToken, TokenTypeEnum.REFRESH);
     if (!decoded.jti || !decoded.exp || !decoded.sub) {
@@ -189,9 +168,7 @@ export class TokenService {
       throw new UnauthorizedException('Invalid login session');
     }
 
-    const activeToken = await cacheService.getAndDelete(
-      RedisKeys.userToken(decoded.sub, decoded.jti)
-    );
+    const activeToken = await cacheService.getAndDelete(RedisKeys.userToken(decoded.sub, decoded.jti));
     if (activeToken !== TokenTypeEnum.REFRESH) {
       throw new UnauthorizedException('Refresh token already used or no longer active');
     }

@@ -14,7 +14,7 @@ const commentLikeSchema = new Schema<ICommentLike>(
       required: true,
     },
   },
-  { timestamps: { createdAt: true, updatedAt: false } }
+  { timestamps: { createdAt: true, updatedAt: false } },
 );
 
 commentLikeSchema.index({ user: 1, comment: 1 }, { unique: true });

@@ -14,7 +14,7 @@ const likeSchema = new Schema<ILike>(
       required: true,
     },
   },
-  { timestamps: { createdAt: true, updatedAt: false } }
+  { timestamps: { createdAt: true, updatedAt: false } },
 );
 
 likeSchema.index({ user: 1, post: 1 }, { unique: true });

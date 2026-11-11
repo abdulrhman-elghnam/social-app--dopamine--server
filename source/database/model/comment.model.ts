@@ -27,7 +27,7 @@ const commentSchema = new Schema<IComment>(
     editedAt: Date,
     deletedAt: Date,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 commentSchema.index({ post: 1, parentComment: 1, createdAt: -1 });

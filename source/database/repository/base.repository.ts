@@ -118,9 +118,7 @@ export abstract class DatabaseRepository<T> {
     return query;
   }
 
-  private addVersionIncrement(
-    update: UpdateQuery<T> | UpdateWithAggregationPipeline
-  ): UpdateQuery<T> | UpdateWithAggregationPipeline {
+  private addVersionIncrement(update: UpdateQuery<T> | UpdateWithAggregationPipeline): UpdateQuery<T> | UpdateWithAggregationPipeline {
     if (Array.isArray(update)) {
       return [
         ...update,
@@ -139,9 +137,7 @@ export abstract class DatabaseRepository<T> {
     const currentIncrement = updateObject['$inc'];
 
     const increment =
-      currentIncrement && typeof currentIncrement === 'object' && !Array.isArray(currentIncrement)
-        ? (currentIncrement as Record<string, number>)
-        : {};
+      currentIncrement && typeof currentIncrement === 'object' && !Array.isArray(currentIncrement) ? (currentIncrement as Record<string, number>) : {};
 
     return {
       ...updateObject,
@@ -153,43 +149,22 @@ export abstract class DatabaseRepository<T> {
   }
 
   async create({ data, options }: { data: T; options?: object }): Promise<HydratedDocument<T>> {
-    const document =
-      options === undefined
-        ? await this.model.create(data as never)
-        : await this.model.create(data as never, options as SaveOptions);
+    const document = options === undefined ? await this.model.create(data as never) : await this.model.create(data as never, options as SaveOptions);
 
     return document as unknown as HydratedDocument<T>;
   }
 
-  async createMany({
-    data,
-    options,
-  }: {
-    data: T[];
-    options?: InsertManyOptions;
-  }): Promise<HydratedDocument<T>[]> {
-    const documents = await this.model.insertMany(
-      data as Parameters<Model<T>['insertMany']>[0],
-      options ?? {}
-    );
+  async createMany({ data, options }: { data: T[]; options?: InsertManyOptions }): Promise<HydratedDocument<T>[]> {
+    const documents = await this.model.insertMany(data as Parameters<Model<T>['insertMany']>[0], options ?? {});
 
     return documents as unknown as HydratedDocument<T>[];
   }
 
-  async findById(
-    id: string | Types.ObjectId,
-    options: ILeanRepositoryOptions<T>
-  ): Promise<T | null>;
+  async findById(id: string | Types.ObjectId, options: ILeanRepositoryOptions<T>): Promise<T | null>;
 
-  async findById(
-    id: string | Types.ObjectId,
-    options?: IHydratedRepositoryOptions<T>
-  ): Promise<HydratedDocument<T> | null>;
+  async findById(id: string | Types.ObjectId, options?: IHydratedRepositoryOptions<T>): Promise<HydratedDocument<T> | null>;
 
-  async findById(
-    id: string | Types.ObjectId,
-    options?: IRepositoryOptions<T>
-  ): Promise<HydratedDocument<T> | T | null> {
+  async findById(id: string | Types.ObjectId, options?: IRepositoryOptions<T>): Promise<HydratedDocument<T> | T | null> {
     let query = this.model.findById(id);
 
     query = this.applyFindOptions(query, options);
@@ -208,19 +183,16 @@ export abstract class DatabaseRepository<T> {
   async findOne(
     params: IRepositoryFindOptions<T> & {
       options: ILeanRepositoryOptions<T>;
-    }
+    },
   ): Promise<T | null>;
 
   async findOne(
     params: IRepositoryFindOptions<T> & {
       options?: IHydratedRepositoryOptions<T>;
-    }
+    },
   ): Promise<HydratedDocument<T> | null>;
 
-  async findOne({
-    filter = {},
-    options,
-  }: IRepositoryFindOptions<T>): Promise<HydratedDocument<T> | T | null> {
+  async findOne({ filter = {}, options }: IRepositoryFindOptions<T>): Promise<HydratedDocument<T> | T | null> {
     let query = this.model.findOne(filter);
 
     query = this.applyFindOptions(query, options);
@@ -237,25 +209,22 @@ export abstract class DatabaseRepository<T> {
   async find(
     params: IRepositoryFindOptions<T> & {
       options: ILeanRepositoryOptions<T>;
-    }
+    },
   ): Promise<T[]>;
 
   async find(
     params: IRepositoryFindOptions<T> & {
       options?: IHydratedRepositoryOptions<T>;
-    }
+    },
   ): Promise<HydratedDocument<T>[]>;
 
   async find(
     params: IRepositoryFindOptions<T> & {
       options?: IRepositoryOptions<T>;
-    }
+    },
   ): Promise<HydratedDocument<T>[] | T[]>;
 
-  async find({
-    filter = {},
-    options,
-  }: IRepositoryFindOptions<T>): Promise<HydratedDocument<T>[] | T[]> {
+  async find({ filter = {}, options }: IRepositoryFindOptions<T>): Promise<HydratedDocument<T>[] | T[]> {
     let query = this.model.find(filter);
 
     query = this.applyFindOptions(query, options);
@@ -269,12 +238,7 @@ export abstract class DatabaseRepository<T> {
     return query.exec();
   }
 
-  async paginate({
-    filter = {},
-    options,
-    page = 1,
-    size = 5,
-  }: IRepositoryPaginateOptions<T>): Promise<IRepositoryPaginateResult<HydratedDocument<T> | T>> {
+  async paginate({ filter = {}, options, page = 1, size = 5 }: IRepositoryPaginateOptions<T>): Promise<IRepositoryPaginateResult<HydratedDocument<T> | T>> {
     const currentPage = Math.max(1, page);
     const pageSize = Math.max(1, size);
 
@@ -315,11 +279,7 @@ export abstract class DatabaseRepository<T> {
     return this.model.updateMany(filter, update, options).exec();
   }
 
-  async findOneAndUpdate({
-    filter,
-    data,
-    options,
-  }: IRepositoryFindAndUpdateOptions<T>): Promise<HydratedDocument<T> | null> {
+  async findOneAndUpdate({ filter, data, options }: IRepositoryFindAndUpdateOptions<T>): Promise<HydratedDocument<T> | null> {
     const update = this.addVersionIncrement(data);
 
     return this.model
@@ -334,7 +294,7 @@ export abstract class DatabaseRepository<T> {
   async findByIdAndUpdate(
     id: string | Types.ObjectId,
     data: UpdateQuery<T> | UpdateWithAggregationPipeline,
-    options?: IRepositoryFindAndUpdateOptions<T>['options']
+    options?: IRepositoryFindAndUpdateOptions<T>['options'],
   ): Promise<HydratedDocument<T> | null> {
     const update = this.addVersionIncrement(data);
 
@@ -361,10 +321,7 @@ export abstract class DatabaseRepository<T> {
     return this.model.deleteMany(filter).exec();
   }
 
-  async findOneAndDelete(
-    filter: QueryFilter<T>,
-    options?: IRepositoryOptions<T>
-  ): Promise<HydratedDocument<T> | null> {
+  async findOneAndDelete(filter: QueryFilter<T>, options?: IRepositoryOptions<T>): Promise<HydratedDocument<T> | null> {
     let query = this.model.findOneAndDelete(filter);
 
     query = this.applyFindOptions(query, options);
@@ -372,10 +329,7 @@ export abstract class DatabaseRepository<T> {
     return query.exec();
   }
 
-  async findByIdAndDelete(
-    id: string | Types.ObjectId,
-    options?: IRepositoryOptions<T>
-  ): Promise<HydratedDocument<T> | null> {
+  async findByIdAndDelete(id: string | Types.ObjectId, options?: IRepositoryOptions<T>): Promise<HydratedDocument<T> | null> {
     let query = this.model.findByIdAndDelete(id);
 
     query = this.applyFindOptions(query, options);

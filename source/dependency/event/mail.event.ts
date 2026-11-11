@@ -1,9 +1,5 @@
 import { EventEmitter } from 'node:events';
-import {
-  forgotPasswordTemplate,
-  mailService,
-  verifyEmailTemplate,
-} from '../service/mail.service.js';
+import { forgotPasswordTemplate, mailService, verifyEmailTemplate } from '../service/mail.service.js';
 
 interface OtpMailEvent {
   email: string;

@@ -14,7 +14,7 @@ const blockSchema = new Schema<IBlock>(
       required: true,
     },
   },
-  { timestamps: { createdAt: true, updatedAt: false } }
+  { timestamps: { createdAt: true, updatedAt: false } },
 );
 
 blockSchema.index({ blocker: 1, blocked: 1 }, { unique: true });

@@ -28,7 +28,7 @@ const conversationSchema = new Schema<IConversation>(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 conversationSchema.index({ participants: 1, updatedAt: -1 });

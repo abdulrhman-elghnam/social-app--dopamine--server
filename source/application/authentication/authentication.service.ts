@@ -1,31 +1,13 @@
 import { IHandlerResult, utilService } from '../../dependency/service/util.service.js';
-import type {
-  ChangePasswordBody,
-  EmailBody,
-  GoogleSignUpBody,
-  LoginBody,
-  OtpBody,
-  RefreshTokenBody,
-  SignupBody,
-} from './dto/auth.dto.js';
-import { userRepository } from '../../database/repo/user.repository.js';
+import type { ChangePasswordBody, EmailBody, GoogleSignUpBody, LoginBody, OtpBody, RefreshTokenBody, SignupBody } from './dto/authentication.dto.js';
+import { userRepository } from '../../database/repository/user.repository.js';
 import { cacheService, RedisKeys } from '../../dependency/service/cache.service.js';
 import { securityService } from '../../dependency/service/security.service.js';
 import { tokenService } from '../../dependency/service/token.service.js';
 import { googleService } from '../../dependency/service/google.service.js';
 import { mailEvent } from '../../dependency/event/mail.event.js';
-import {
-  BadRequestException,
-  ConflictException,
-  NotFoundException,
-  UnauthorizedException,
-} from '../../dependency/exception/main.exception.js';
-import {
-  GenderEnum,
-  ProviderEnum,
-  SystemRoleEnum,
-  UserPrivacyControllerEnum,
-} from '../../dependency/value/database.enum.js';
+import { BadRequestException, ConflictException, NotFoundException, UnauthorizedException } from '../../dependency/exception/main.exception.js';
+import { GenderEnum, ProviderEnum, SystemRoleEnum, UserPrivacyControllerEnum } from '../../dependency/value/database.enum.js';
 import { SystemRoleEnum as TokenRoleEnum } from '../../dependency/value/security.enum.js';
 import type { HUserDocument } from '../../database/model/user.model.js';
 
@@ -82,10 +64,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials', { messageCode: 301 });
     }
-    if (
-      !user?.password ||
-      !(await securityService.compare(payload.password, user.password as string))
-    ) {
+    if (!user?.password || !(await securityService.compare(payload.password, user.password as string))) {
       throw new UnauthorizedException('Invalid credentials', { messageCode: 301 });
     }
     if (!user.isEmailVerified) {
@@ -97,7 +76,7 @@ export class AuthService {
         _id: user._id ?? '',
         role: user.role === 'admin' ? TokenRoleEnum.ADMIN : TokenRoleEnum.USER,
       },
-      issuer
+      issuer,
     );
     return { messageCode: 309, data: credentials };
   };
@@ -109,9 +88,7 @@ export class AuthService {
     });
 
     if (!user) {
-      const nameParts = (account.name ?? account.email.split('@')[0] ?? 'Google User')
-        .trim()
-        .split(/\s+/);
+      const nameParts = (account.name ?? account.email.split('@')[0] ?? 'Google User').trim().split(/\s+/);
       user = await userRepository.create({
         data: {
           firstName: nameParts[0] ?? 'Google',
@@ -129,10 +106,7 @@ export class AuthService {
       });
     }
 
-    const credentials = await tokenService.createLoginCredentials(
-      { _id: user._id ?? '', role: TokenRoleEnum.USER },
-      issuer
-    );
+    const credentials = await tokenService.createLoginCredentials({ _id: user._id ?? '', role: TokenRoleEnum.USER }, issuer);
     return { status: 201, messageCode: 104, data: credentials };
   };
 

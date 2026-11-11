@@ -11,7 +11,7 @@ export class RoleGuard {
         return next(
           new UnauthorizedException('Authentication required', {
             messageCode: 109,
-          })
+          }),
         );
       }
 
@@ -19,7 +19,7 @@ export class RoleGuard {
         return next(
           new ForbiddenException('You do not have permission', {
             messageCode: 109,
-          })
+          }),
         );
       }
 

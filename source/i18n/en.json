@@ -29,7 +29,6 @@
   "128": "access denied",
   "129": "insufficient permissions",
   "130": "admin access required",
-
   "201": "validation failed",
   "202": "invalid input",
   "203": "invalid request body",
@@ -88,7 +87,9 @@
   "256": "too few items",
   "257": "invalid enum value",
   "258": "field must be unique",
-
+  "259": "invalid id",
+  "260": "page must be a positive integer",
+  "261": "size must be between 1 and 50",
   "301": "invalid credentials",
   "302": "invalid token",
   "303": "token expired",
@@ -107,7 +108,6 @@
   "316": "account is not authenticated",
   "317": "authentication failed",
   "318": "time out",
-
   "401": "user not found",
   "402": "user already exists",
   "403": "user is already deleted",
@@ -122,21 +122,18 @@
   "412": "new password must be different from the current password",
   "413": "email is already verified",
   "414": "cannot get a new access token until the current token expires",
-
   "501": "database error",
   "502": "database connection failed",
   "503": "database query failed",
   "504": "failed to create resource",
   "505": "failed to update resource",
   "506": "failed to delete resource",
-
   "601": "file not found",
   "602": "file upload failed",
   "603": "file type is not supported",
   "604": "file size is too large",
   "605": "failed to delete file",
   "607": "file uploaded successfully",
-
   "701": "invalid verification code",
   "702": "verification code expired",
   "703": "verification code is required",
@@ -146,8 +143,27 @@
   "707": "password reset token is invalid",
   "708": "password reset token expired",
   "709": "password reset successfully",
-
   "801": "external service error",
   "802": "external service unavailable",
-  "803": "failed to communicate with external service"
+  "803": "failed to communicate with external service",
+  "901": "post created successfully",
+  "902": "posts retrieved successfully",
+  "903": "post retrieved successfully",
+  "904": "post updated successfully",
+  "905": "post deleted successfully",
+  "906": "post not found",
+  "907": "you are not allowed to modify this post",
+  "908": "comments are disabled for this post",
+  "909": "post content is required",
+  "910": "provide at least one field to update",
+  "911": "post content must not exceed 5000 characters",
+  "921": "comment created successfully",
+  "922": "comments retrieved successfully",
+  "923": "comment retrieved successfully",
+  "924": "comment updated successfully",
+  "925": "comment deleted successfully",
+  "926": "comment not found",
+  "927": "you are not allowed to modify this comment",
+  "928": "comment content is required",
+  "929": "comment content must not exceed 2000 characters"
 }

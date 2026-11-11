@@ -14,7 +14,7 @@ const followSchema = new Schema<IFollow>(
       required: true,
     },
   },
-  { timestamps: { createdAt: true, updatedAt: false } }
+  { timestamps: { createdAt: true, updatedAt: false } },
 );
 
 followSchema.index({ follower: 1, following: 1 }, { unique: true });

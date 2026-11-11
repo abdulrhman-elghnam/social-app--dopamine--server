@@ -39,7 +39,7 @@ export class ValidationPipe {
             files: validationSchema.files ?? z.unknown().optional(),
           })
           .safeParse({
-            body: req.body,
+            body: req.body ?? {},
             params: req.params,
             query: req.query,
             file: req.file,
@@ -55,7 +55,7 @@ export class ValidationPipe {
                 code,
                 message,
               })),
-            })
+            }),
           );
         }
 
@@ -139,7 +139,7 @@ export const generalValidationFields = {
 
           return date >= minDate && date <= today;
         },
-        { message: t(227) }
+        { message: t(227) },
       )
       .refine(
         (date) => {
@@ -148,7 +148,7 @@ export const generalValidationFields = {
 
           return date <= maxDate;
         },
-        { message: t(226) }
+        { message: t(226) },
       ),
   otp: (t: Translate) =>
     z
@@ -161,6 +161,27 @@ export const generalValidationFields = {
       .string({ message: t(234) })
       .trim()
       .min(1, { message: t(234) }),
+
+  objectId: (t: Translate) =>
+    z
+      .string({ message: t(259) })
+      .trim()
+      .regex(/^[a-f\d]{24}$/i, { message: t(259) }),
+
+  page: (t: Translate) =>
+    z.coerce
+      .number({ message: t(260) })
+      .int({ message: t(260) })
+      .min(1, { message: t(260) })
+      .default(1),
+
+  size: (t: Translate) =>
+    z.coerce
+      .number({ message: t(261) })
+      .int({ message: t(261) })
+      .min(1, { message: t(261) })
+      .max(50, { message: t(261) })
+      .default(10),
 
   privacyAction: (t: Translate) =>
     z.enum(['public', 'private'], {

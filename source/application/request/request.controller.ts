@@ -24,7 +24,7 @@ class RequestController {
       authGuard.check(TokenTypeEnum.ACCESS),
       utilService.responseFormatter({
         handler: async (req: Request) => requestService.getRequests(req.payload as JwtPayload),
-      })
+      }),
     );
 
     this.route.post(
@@ -33,12 +33,10 @@ class RequestController {
       utilService.responseFormatter({
         handler: async (req: Request) =>
           requestService.acceptRequest(
-            Array.isArray(req.params['requestId'])
-              ? (req.params['requestId'][0] ?? '')
-              : (req.params['requestId'] ?? ''),
-            req.payload as JwtPayload
+            Array.isArray(req.params['requestId']) ? (req.params['requestId'][0] ?? '') : (req.params['requestId'] ?? ''),
+            req.payload as JwtPayload,
           ),
-      })
+      }),
     );
 
     this.route.post(
@@ -47,12 +45,10 @@ class RequestController {
       utilService.responseFormatter({
         handler: async (req: Request) =>
           requestService.rejectRequest(
-            Array.isArray(req.params['requestId'])
-              ? (req.params['requestId'][0] ?? '')
-              : (req.params['requestId'] ?? ''),
-            req.payload as JwtPayload
+            Array.isArray(req.params['requestId']) ? (req.params['requestId'][0] ?? '') : (req.params['requestId'] ?? ''),
+            req.payload as JwtPayload,
           ),
-      })
+      }),
     );
 
     this.route.delete(
@@ -61,12 +57,10 @@ class RequestController {
       utilService.responseFormatter({
         handler: async (req: Request, _res: Response, _next: NextFunction) =>
           requestService.deleteRequest(
-            Array.isArray(req.params['requestId'])
-              ? (req.params['requestId'][0] ?? '')
-              : (req.params['requestId'] ?? ''),
-            req.payload as JwtPayload
+            Array.isArray(req.params['requestId']) ? (req.params['requestId'][0] ?? '') : (req.params['requestId'] ?? ''),
+            req.payload as JwtPayload,
           ),
-      })
+      }),
     );
   }
 }

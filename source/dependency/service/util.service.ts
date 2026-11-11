@@ -14,11 +14,7 @@ export interface IHandlerResult {
 }
 
 export interface IHandlerFunction {
-  handler: (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => IHandlerResult | void | Promise<IHandlerResult | void>;
+  handler: (req: Request, res: Response, next: NextFunction) => IHandlerResult | void | Promise<IHandlerResult | void>;
 }
 
 export class UtilService {
@@ -77,20 +73,14 @@ export class UtilService {
       503: 116,
     };
 
-    const normalizedError: IError = (
-      error instanceof Error ? error : new Error(String(error))
-    ) as IError;
+    const normalizedError: IError = (error instanceof Error ? error : new Error(String(error))) as IError;
 
     const status = normalizedError.statusCode ?? normalizedError.status;
 
-    const statusCode =
-      typeof status === 'number' && Number.isInteger(status) && status >= 400 && status <= 599
-        ? status
-        : 500;
+    const statusCode = typeof status === 'number' && Number.isInteger(status) && status >= 400 && status <= 599 ? status : 500;
 
     const messageCode =
-      typeof normalizedError.messageCode === 'number' &&
-      Number.isInteger(normalizedError.messageCode)
+      typeof normalizedError.messageCode === 'number' && Number.isInteger(normalizedError.messageCode)
         ? normalizedError.messageCode
         : (statusMessageCodes[statusCode] ?? 103);
 

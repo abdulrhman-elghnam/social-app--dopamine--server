@@ -3,9 +3,9 @@ import { FollowRequestStatusEnum } from '../../dependency/value/database.enum.js
 import { ConflictException, NotFoundException } from '../../dependency/exception/main.exception.js';
 import type { IHandlerResult } from '../../dependency/service/util.service.js';
 import { utilService } from '../../dependency/service/util.service.js';
-import { followRepository } from '../../database/repo/follow.repository.js';
-import { followRequestRepository } from '../../database/repo/friend-request.repository.js';
-import { userRepository } from '../../database/repo/user.repository.js';
+import { followRepository } from '../../database/repository/follow.repository.js';
+import { followRequestRepository } from '../../database/repository/friend-request.repository.js';
+import { userRepository } from '../../database/repository/user.repository.js';
 
 class RequestService {
   private async getReceivedRequest(requestId: string, userId: string) {
@@ -37,10 +37,10 @@ class RequestService {
     });
     if (!existingFollow) {
       await followRepository.create({
-      data: {
-        follower: request.requester,
-        following: request.recipient,
-      },
+        data: {
+          follower: request.requester,
+          following: request.recipient,
+        },
       });
       await userRepository.updateFollowCounts({
         followerId: request.requester,
@@ -71,10 +71,7 @@ class RequestService {
     const request = await followRequestRepository.findOne({
       filter: {
         _id: utilService.toObjectId(requestId),
-        $or: [
-          { requester: utilService.toObjectId(payload.sub as string) },
-          { recipient: utilService.toObjectId(payload.sub as string) },
-        ],
+        $or: [{ requester: utilService.toObjectId(payload.sub as string) }, { recipient: utilService.toObjectId(payload.sub as string) }],
       },
     });
 

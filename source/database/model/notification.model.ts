@@ -30,7 +30,7 @@ const notificationSchema = new Schema<INotification>(
     isRead: { type: Boolean, default: false },
     readAt: Date,
   },
-  { timestamps: { createdAt: true, updatedAt: false } }
+  { timestamps: { createdAt: true, updatedAt: false } },
 );
 
 notificationSchema.index({ recipient: 1, isRead: 1, createdAt: -1 });
