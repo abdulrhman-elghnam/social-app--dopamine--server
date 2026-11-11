@@ -1,0 +1,216 @@
+import { IHandlerResult, utilService } from '../../dependency/service/util.service.js';
+import type {
+  ChangePasswordBody,
+  EmailBody,
+  GoogleSignUpBody,
+  LoginBody,
+  OtpBody,
+  RefreshTokenBody,
+  SignupBody,
+} from './dto/auth.dto.js';
+import { userRepository } from '../../database/repo/user.repository.js';
+import { cacheService, RedisKeys } from '../../dependency/service/cache.service.js';
+import { securityService } from '../../dependency/service/security.service.js';
+import { tokenService } from '../../dependency/service/token.service.js';
+import { googleService } from '../../dependency/service/google.service.js';
+import { mailEvent } from '../../dependency/event/mail.event.js';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+  UnauthorizedException,
+} from '../../dependency/exception/main.exception.js';
+import {
+  GenderEnum,
+  ProviderEnum,
+  SystemRoleEnum,
+  UserPrivacyControllerEnum,
+} from '../../dependency/value/database.enum.js';
+import { SystemRoleEnum as TokenRoleEnum } from '../../dependency/value/security.enum.js';
+import type { HUserDocument } from '../../database/model/user.model.js';
+
+export class AuthService {
+  constructor() {}
+  signup = async (payload: SignupBody): Promise<IHandlerResult> => {
+    const email = payload.email.toLowerCase();
+    const existingUser = await userRepository.findOne({
+      filter: { $or: [{ email }, { username: payload.username }] },
+    });
+    if (existingUser) {
+      throw new ConflictException('Email or username already exists', { messageCode: 402 });
+    }
+
+    const { firstName, lastName } = utilService.splitFullName(payload.fullName);
+    await userRepository.create({
+      data: {
+        firstName,
+        lastName,
+        username: payload.username,
+        email,
+        password: payload.password,
+        ...(payload.phoneNumber ? { phone: payload.phoneNumber } : {}),
+        ...(payload.DOB ? { DOB: new Date(payload.DOB) } : {}),
+        gender: payload.gender === 'MALE' ? GenderEnum.MALE : GenderEnum.FEMALE,
+        role: SystemRoleEnum.USER,
+        provider: ProviderEnum.LOCAL,
+        isEmailVerified: false,
+        isActive: true,
+        privacyController: UserPrivacyControllerEnum.public,
+        followersCount: 0,
+        followingCount: 0,
+        postsCount: 0,
+      },
+    });
+
+    const otp = utilService.createOtp();
+    await cacheService.setCache({
+      key: RedisKeys.otpKey(email),
+      value: otp,
+      options: { EX: 10 * 60 },
+    });
+    await mailEvent.sendVerificationEmail({ email, otp });
+
+    return { status: 201, messageCode: 104 };
+  };
+
+  login = async (payload: LoginBody, issuer: string): Promise<IHandlerResult> => {
+    const user = (await userRepository.findOne({
+      filter: { email: payload.email.toLowerCase(), isActive: true },
+      options: { select: { password: 1, isEmailVerified: 1 } },
+    })) as HUserDocument | null;
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials', { messageCode: 301 });
+    }
+    if (
+      !user?.password ||
+      !(await securityService.compare(payload.password, user.password as string))
+    ) {
+      throw new UnauthorizedException('Invalid credentials', { messageCode: 301 });
+    }
+    if (!user.isEmailVerified) {
+      throw new UnauthorizedException('Email is not verified', { messageCode: 406 });
+    }
+
+    const credentials = await tokenService.createLoginCredentials(
+      {
+        _id: user._id ?? '',
+        role: user.role === 'admin' ? TokenRoleEnum.ADMIN : TokenRoleEnum.USER,
+      },
+      issuer
+    );
+    return { messageCode: 309, data: credentials };
+  };
+
+  googleCredential = async (payload: GoogleSignUpBody, issuer: string): Promise<IHandlerResult> => {
+    const account = await googleService.verifyGoogleAccount(payload.idToken);
+    let user = await userRepository.findOne({
+      filter: { email: account.email },
+    });
+
+    if (!user) {
+      const nameParts = (account.name ?? account.email.split('@')[0] ?? 'Google User')
+        .trim()
+        .split(/\s+/);
+      user = await userRepository.create({
+        data: {
+          firstName: nameParts[0] ?? 'Google',
+          lastName: nameParts.slice(1).join(' ') || nameParts[0] || 'User',
+          username: account.email.split('@')[0]?.slice(0, 30) || account.googleId.slice(0, 30),
+          email: account.email,
+          gender: GenderEnum.MALE,
+          role: SystemRoleEnum.USER,
+          provider: ProviderEnum.GOOGLE,
+          isEmailVerified: true,
+          isActive: true,
+          privacyController: UserPrivacyControllerEnum.public,
+          ...(account.picture ? { image: account.picture } : {}),
+        },
+      });
+    }
+
+    const credentials = await tokenService.createLoginCredentials(
+      { _id: user._id ?? '', role: TokenRoleEnum.USER },
+      issuer
+    );
+    return { status: 201, messageCode: 104, data: credentials };
+  };
+
+  requestForgetPassword = async (payload: EmailBody): Promise<IHandlerResult> => {
+    const email = payload.email.toLowerCase();
+    const user = await userRepository.findOne({ filter: { email } });
+
+    if (!user) {
+      throw new NotFoundException('User not found', { messageCode: 401 });
+    }
+
+    const otp = utilService.createOtp();
+    await cacheService.setCache({
+      key: RedisKeys.otpKey(user.email),
+      value: otp,
+      options: { EX: 10 * 60 },
+    });
+    await mailEvent.sendForgotPasswordEmail({ email: user.email, otp });
+
+    return { status: 201, messageCode: 104 };
+  };
+
+  changePassword = async (payload: ChangePasswordBody): Promise<IHandlerResult> => {
+    const email = payload.email.toLowerCase();
+    const user = await userRepository.findOne({ filter: { email } });
+
+    if (!user) {
+      throw new NotFoundException('User not found', { messageCode: 401 });
+    }
+    user.password = payload.password;
+    await user.save();
+
+    await tokenService.logout(user._id ?? '');
+    await cacheService.deleteCache(RedisKeys.otpKey(email));
+    return { messageCode: 105 };
+  };
+
+  verifyForgotPassword = async (payload: OtpBody): Promise<IHandlerResult> => {
+    const email = payload.email.toLowerCase();
+    const cachedOtp = await cacheService.getCache<number>(RedisKeys.otpKey(email));
+
+    if (cachedOtp !== Number(payload.otp)) {
+      throw new BadRequestException('Invalid OTP', { messageCode: 233 });
+    }
+
+    await userRepository.findOne({ filter: { email } });
+    return { messageCode: 107 };
+  };
+
+  verifyOtp = async (payload: OtpBody): Promise<IHandlerResult> => {
+    const email = payload.email.toLowerCase();
+    const cachedOtp = await cacheService.getCache<number>(RedisKeys.otpKey(email));
+
+    if (cachedOtp !== Number(payload.otp)) {
+      throw new BadRequestException('Invalid OTP', { messageCode: 233 });
+    }
+
+    const user = await userRepository.findOneAndUpdate({
+      filter: { email },
+      data: { $set: { isEmailVerified: true } },
+    });
+    if (!user) {
+      throw new BadRequestException('User not found', { messageCode: 401 });
+    }
+
+    await cacheService.deleteCache(RedisKeys.otpKey(email));
+    return { messageCode: 107 };
+  };
+
+  logout = async (userId: string): Promise<IHandlerResult> => {
+    await tokenService.logout(userId);
+    return { messageCode: 106 };
+  };
+
+  rotateToken = async (payload: RefreshTokenBody, issuer: string): Promise<IHandlerResult> => {
+    const credentials = await tokenService.rotateRefreshToken(payload.refreshToken, issuer);
+    return { messageCode: 309, data: credentials };
+  };
+}
+
+export const authService = new AuthService();
