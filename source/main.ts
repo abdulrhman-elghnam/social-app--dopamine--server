@@ -24,12 +24,9 @@ async function start(): Promise<void> {
     shuttingDown = true;
     console.log({ server: `${signal} received, shutting down` });
 
-
     setTimeout(() => process.exit(1), SHUTDOWN_TIMEOUT_MS).unref();
     void io.close();
-    httpServer.close(() => {
-      Promise.allSettled([mongoose.connection.close(), cacheService.disconnect()]).finally(() => process.exit(0));
-    });
+    httpServer.close(() => Promise.allSettled([mongoose.connection.close(), cacheService.disconnect()]).finally(() => process.exit(0)));
   };
   process.on('SIGTERM', () => shutdown('SIGTERM'));
   process.on('SIGINT', () => shutdown('SIGINT'));

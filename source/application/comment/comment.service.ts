@@ -95,7 +95,6 @@ class CommentService {
     return { messageCode: 924, data: comment };
   };
 
-  /** The comment's author or the post's author may delete; replies go with it. */
   remove = async (commentId: string, payload: JwtPayload): Promise<IHandlerResult> => {
     const me = utilService.currentUserId(payload);
     const { comment, post } = await this.findAccessible(commentId, me);

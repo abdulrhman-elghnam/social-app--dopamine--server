@@ -9,7 +9,7 @@ import { TokenTypeEnum } from '../../dependency/value/security.enum.js';
 import { GetNotificationsDTO, NotificationIdDTO, type GetNotificationsQuery, type NotificationIdParams } from './dto/notification.dto.js';
 import { notificationService } from './notification.service.js';
 
-/** Mounted at `/notifications`. */
+
 class NotificationController {
   public readonly route: RouterType = Router({ caseSensitive: true, strict: true });
 
@@ -25,7 +25,6 @@ class NotificationController {
       }),
     );
 
-    // Before `/:id/read`'s sibling `/:id` routes so "read-all" is never parsed as an id.
     this.route.patch(
       '/read-all',
       auth,

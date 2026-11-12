@@ -21,11 +21,7 @@ export interface NotifyInput {
 }
 
 class NotificationService {
-  /**
-   * Persists a notification and pushes `notification:new` to the recipient's room.
-   * Never notifies yourself or across a block. Failures are logged, never thrown — a
-   * notification must not break the action that caused it.
-   */
+
   notify = async (input: NotifyInput): Promise<void> => {
     try {
       if (input.recipient.equals(input.sender)) return;
@@ -41,7 +37,6 @@ class NotificationService {
     }
   };
 
-  /** Removes a notification whose cause was undone (unlike, unfollow, cancelled request). */
   retract = async (input: NotifyInput): Promise<void> => {
     try {
       await notificationRepository.deleteMany({
@@ -66,12 +61,10 @@ class NotificationService {
     return { messageCode: 1101, data, meta: { ...meta, unreadCount } };
   };
 
-  /** Shared by REST `PATCH /notifications/:id/read` and socket `notification:read`. */
   markRead = async (notificationId: string, userId: Types.ObjectId): Promise<number> => {
     const found = await notificationRepository.markRead(utilService.toObjectId(notificationId), userId);
     if (!found) throw new NotFoundException('Notification not found', { messageCode: 1105 });
     const unreadCount = await notificationRepository.unreadCount(userId);
-    // Keep the user's other devices in sync.
     socketGateway.emitToUser(userId, SocketEvents.NOTIFICATION_READ_UPDATE, { notificationId, unreadCount });
     return unreadCount;
   };

@@ -22,7 +22,6 @@ const ADMIN_ROLES = [ConversationMemberRoleEnum.ADMIN, ConversationMemberRoleEnu
 type Redactable = { deletedAt?: Date | undefined; content?: string | undefined; media?: unknown[] | undefined };
 type Redacted<M> = Omit<M, 'content' | 'media'> & { content?: string | undefined; media?: unknown[] | undefined };
 
-/** Deleted messages keep their place in history but lose their payload. */
 export const redactMessage = <M extends Redactable>(message: M): Redacted<M> => {
   if (!message.deletedAt) return message;
   const { content: _content, media: _media, ...rest } = message;
@@ -30,7 +29,6 @@ export const redactMessage = <M extends Redactable>(message: M): Redacted<M> => 
 };
 
 class ConversationService {
-  /** Conversation + the caller's membership; 404 for non-members (existence is not leaked). */
   findMembership = async (
     conversationId: string | Types.ObjectId,
     userId: Types.ObjectId,
@@ -41,7 +39,6 @@ class ConversationService {
     return { conversation, membership };
   };
 
-  /** Rejects when any of `others` is missing/inactive or blocked with `me`. */
   private assertCanMessage = async (me: Types.ObjectId, others: Types.ObjectId[]): Promise<void> => {
     const found = await userRepository.find({ filter: { _id: { $in: others }, isActive: true }, options: { select: '_id', lean: true } });
     if (found.length !== others.length) throw new NotFoundException('User not found', { messageCode: 401 });
@@ -83,7 +80,7 @@ class ConversationService {
     return { messageCode: 1201, data: enriched, meta };
   };
 
-  /** A direct conversation is unique per pair — asking again returns the existing one. */
+
   create = async (body: CreateConversationBody, payload: JwtPayload): Promise<IHandlerResult> => {
     const me = utilService.currentUserId(payload);
     const others = this.uniqueOthers(body.participantIds, me);
@@ -142,7 +139,7 @@ class ConversationService {
     };
   };
 
-  /** Group admins rename, change the image, add or remove members. The owner can't be removed. */
+
   updateGroup = async (conversationId: string, body: UpdateGroupBody, payload: JwtPayload): Promise<IHandlerResult> => {
     const me = utilService.currentUserId(payload);
     const { conversation, membership } = await this.findMembership(conversationId, me);
@@ -184,7 +181,6 @@ class ConversationService {
         data: { $pull: { participants: { $in: toRemove }, admins: { $in: toRemove } } },
       });
       await conversationMemberRepository.deleteMany({ conversation: conversation._id, user: { $in: toRemove } });
-      // Kick removed members' sockets out of the live room.
       socketGateway.server?.in(toRemove.map((id) => Rooms.user(String(id)))).socketsLeave(Rooms.conversation(String(conversation._id)));
     }
 
@@ -207,10 +203,6 @@ class ConversationService {
     return { messageCode: 1206, data: { conversationId, isMuted: membership.isMuted } };
   };
 
-  /**
-   * Moves the caller's read marker to `messageId` (or the latest message), marks earlier
-   * messages as read, and broadcasts `message:read:update`. Shared by REST and the socket.
-   */
   markRead = async (conversationId: string, userId: Types.ObjectId, messageId?: string) => {
     const { conversation, membership } = await this.findMembership(conversationId, userId);
 

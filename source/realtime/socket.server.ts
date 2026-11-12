@@ -81,11 +81,9 @@ class SocketServer {
     on(SocketEvents.MESSAGE_DELETE, schemas.remove, (input) => messageService.remove(input, me));
     on(SocketEvents.MESSAGE_READ, schemas.read, ({ conversationId, messageId }) => conversationService.markRead(conversationId, me, messageId));
 
-    const typing =
-      (isTyping: boolean) =>
+    const typing = (isTyping: boolean) =>
       async ({ conversationId }: { conversationId: string }) => {
         await conversationService.findMembership(conversationId, me);
-        // `socket.to` excludes the typist's own socket.
         socket.to(Rooms.conversation(conversationId)).emit(SocketEvents.TYPING_UPDATE, { conversationId, userId, isTyping });
       };
     on(SocketEvents.TYPING_START, schemas.conversation, typing(true));
@@ -108,7 +106,6 @@ class SocketServer {
       })();
     });
   }
-
 
   private async broadcastPresence(user: Types.ObjectId, online: boolean): Promise<void> {
     const contacts = await conversationRepository.contactIds(user);

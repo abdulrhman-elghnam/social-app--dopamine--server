@@ -25,14 +25,12 @@ import {
 } from './dto/user.dto.js';
 import { userService } from './user.service.js';
 
-
 const imageUpload = (fieldName: string, folder: string): RequestHandler =>
   uploadPipe.uploadMiddleware({
     multerMiddleware: storageService.localFileStorage({ maxFileSize: 5, validation: fileFieldValidation.image, customPath: folder }).single(fieldName),
     customPath: folder,
     validation: fileFieldValidation.image,
   });
-
 
 class UserController {
   public readonly route: RouterType = Router({ caseSensitive: true, strict: true });

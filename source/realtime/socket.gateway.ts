@@ -5,7 +5,6 @@ export type AppServer = Server<ClientToServerEvents, ServerToClientEvents, Recor
 type Event = keyof ServerToClientEvents;
 type Id = string | { toString(): string };
 
-
 class SocketGateway {
   private io: AppServer | null = null;
   private readonly connections = new Map<string, number>();

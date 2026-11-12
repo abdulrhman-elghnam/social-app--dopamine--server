@@ -20,7 +20,6 @@ import {
 } from './dto/report.dto.js';
 import { reportService } from './report.service.js';
 
-/** Mounted at `/reports`. Listing and reviewing are admin-only. */
 class ReportController {
   public readonly route: RouterType = Router({ caseSensitive: true, strict: true });
 

@@ -29,7 +29,6 @@ export class ReportRepository extends DatabaseRepository<IReport> {
     super(ReportModel);
   }
 
-
   async findPendingDuplicate(reporter: Types.ObjectId, target: QueryFilter<IReport>) {
     return this.findOne({ filter: { reporter, status: ReportStatusEnum.PENDING, ...target }, options: { select: '_id', lean: true } });
   }

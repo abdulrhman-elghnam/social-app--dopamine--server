@@ -14,16 +14,13 @@ import { SystemRoleEnum } from '../../dependency/value/security.enum.js';
 import type { CreateReportBody, ListReportsQuery, ReviewReportBody } from './dto/report.dto.js';
 
 interface ResolvedTarget {
-  /** Equality filter identifying the target (used for duplicate detection). */
-  key: QueryFilter<IReport>;
-  /** Owner of the reported content, stored so admins can act on the account. */
+  key: QueryFilter<IReport>;  
   reportedUser: Types.ObjectId;
 }
 
 class ReportService {
   private notFound = () => new NotFoundException('Report not found', { messageCode: 1305 });
 
-  /** The reporter must be able to see what they report; otherwise it doesn't exist for them. */
   private resolveTarget = async (type: ReportTargetTypeEnum, targetId: Types.ObjectId, reporter: Types.ObjectId): Promise<ResolvedTarget> => {
     const missing = () => new NotFoundException('Reported content not found', { messageCode: 1306 });
 
@@ -79,7 +76,6 @@ class ReportService {
     return { messageCode: 1302, ...utilService.paged(await reportRepository.paginateForAdmin(filter, query.page, query.size)) };
   };
 
-  /** Admins see any report; a user sees only their own (others look missing). */
   get = async (reportId: string, payload: JwtPayload, role: SystemRoleEnum | undefined): Promise<IHandlerResult> => {
     const report = await reportRepository.findById(utilService.toObjectId(reportId), { populate: reportPopulate, lean: true });
     if (!report) throw this.notFound();

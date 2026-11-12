@@ -17,11 +17,9 @@ export class ConversationRepository extends DatabaseRepository<IConversation> {
     super(ConversationModel);
   }
 
-
   async findDirectBetween(a: Types.ObjectId, b: Types.ObjectId) {
     return this.findOne({ filter: { isGroup: false, participants: { $all: [a, b], $size: 2 } } });
   }
-
 
   async paginateForUser(userId: Types.ObjectId, page: number, size: number) {
     return this.paginateLean<{ participants: AuthorCard[]; lastMessage: MessagePreview | null }>({
@@ -31,7 +29,6 @@ export class ConversationRepository extends DatabaseRepository<IConversation> {
       size,
     });
   }
-
 
   async contactIds(userId: Types.ObjectId): Promise<string[]> {
     const ids = await this.distinctIds('participants', { participants: userId });

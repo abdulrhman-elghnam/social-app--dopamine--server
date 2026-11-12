@@ -19,7 +19,6 @@ const notification = await load('application/notification/dto/notification.dto.j
 const chat = await load('application/chat/dto/conversation.dto.js');
 const report = await load('application/report/dto/report.dto.js');
 
-
 const APP = {
   name: 'Dopamine',
   summary: 'Dopamine is a social app for connecting people.',
@@ -42,7 +41,6 @@ const TAGS = [
   { name: 'Reports', description: 'Report users, posts or comments. Listing and reviewing are admin-only.' },
   { name: 'System', description: 'Health and service info.' },
 ];
-
 
 const id = { type: 'string', pattern: '^[a-f\\d]{24}$', example: SAMPLE_ID };
 const date = { type: 'string', format: 'date-time' };

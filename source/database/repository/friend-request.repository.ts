@@ -13,7 +13,7 @@ export class FollowRequestRepository extends DatabaseRepository<IFollowRequest> 
   async findBetween(requester: Types.ObjectId, recipient: Types.ObjectId) {
     return this.findOne({ filter: { requester, recipient } });
   }
-  
+
   async paginatePending(userId: Types.ObjectId, direction: 'received' | 'sent', page: number, size: number) {
     const mine = direction === 'received' ? 'recipient' : 'requester';
     const other = direction === 'received' ? 'requester' : 'recipient';
@@ -25,7 +25,7 @@ export class FollowRequestRepository extends DatabaseRepository<IFollowRequest> 
       size,
     });
   }
-  
+
   async deleteBetween(a: Types.ObjectId, b: Types.ObjectId): Promise<void> {
     await this.deleteMany({
       $or: [

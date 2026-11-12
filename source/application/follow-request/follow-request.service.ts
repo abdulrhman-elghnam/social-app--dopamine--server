@@ -13,16 +13,13 @@ import { notificationService } from '../notification/notification.service.js';
 import type { ListFollowRequestsQuery } from './dto/follow-request.dto.js';
 
 class FollowRequestService {
-  // ── follow graph primitives (also used by the users module) ──────────────────
 
-  /** Creates the follow edge and bumps both counters; false when it already existed. */
   createFollow = async (followerId: Types.ObjectId, followingId: Types.ObjectId): Promise<boolean> => {
     const created = await followRepository.createIfAbsent({ follower: followerId, following: followingId });
     if (created) await userRepository.updateFollowCounts({ followerId, followingId, amount: 1 });
     return created;
   };
 
-  /** Removes the follow edge and decrements both counters; false when there was none. */
   removeFollow = async (followerId: Types.ObjectId, followingId: Types.ObjectId): Promise<boolean> => {
     const removed = await followRepository.deleteIfPresent({ follower: followerId, following: followingId });
     if (removed) {
@@ -32,9 +29,7 @@ class FollowRequestService {
     return removed;
   };
 
-  // ── routes ────────────────────────────────────────────────────────────────────
 
-  /** Public account → follow immediately; private account → pending request. */
   send = async (targetId: string, payload: JwtPayload): Promise<IHandlerResult> => {
     const me = utilService.currentUserId(payload);
     const target = utilService.toObjectId(targetId);
@@ -60,7 +55,6 @@ class FollowRequestService {
       throw new ConflictException('Request already pending', { messageCode: 433 });
     }
 
-    // A stale accepted/rejected row (unique per pair) is reopened instead of duplicated.
     const request = await followRequestRepository.findOneAndUpdate({
       filter: { requester: me, recipient: target },
       data: { $set: { status: FollowRequestStatusEnum.PENDING } },
@@ -105,7 +99,6 @@ class FollowRequestService {
     return { messageCode: 435, data: request };
   };
 
-  /** The requester withdraws a still-pending request. */
   cancel = async (requestId: string, payload: JwtPayload): Promise<IHandlerResult> => {
     const me = utilService.currentUserId(payload);
     const request = await followRequestRepository.findOneAndDelete({

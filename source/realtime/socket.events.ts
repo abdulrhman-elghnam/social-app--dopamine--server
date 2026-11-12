@@ -1,7 +1,6 @@
 import type { Types } from 'mongoose';
 
 export const SocketEvents = {
-
   CONVERSATION_JOIN: 'conversation:join',
   CONVERSATION_LEAVE: 'conversation:leave',
   MESSAGE_SEND: 'message:send',
@@ -19,11 +18,11 @@ export const SocketEvents = {
   TYPING_UPDATE: 'typing:update',
 
   CONVERSATION_UPDATED: 'conversation:updated',
-  
+
   PRESENCE_ONLINE: 'presence:online',
   PRESENCE_OFFLINE: 'presence:offline',
   PRESENCE_UPDATE: 'presence:update',
-  
+
   NOTIFICATION_NEW: 'notification:new',
   NOTIFICATION_READ: 'notification:read',
   NOTIFICATION_READ_UPDATE: 'notification:read:update',

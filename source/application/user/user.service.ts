@@ -7,6 +7,7 @@ import { followRequestRepository } from '../../database/repository/friend-reques
 import { postRepository } from '../../database/repository/post.repository.js';
 import { userRepository } from '../../database/repository/user.repository.js';
 import { BadRequestException, ConflictException, ForbiddenException, NotFoundException } from '../../dependency/exception/main.exception.js';
+import { storageService } from '../../dependency/service/storage.service.js';
 import type { IHandlerResult } from '../../dependency/service/util.service.js';
 import { utilService } from '../../dependency/service/util.service.js';
 import { FollowRequestStatusEnum, GenderEnum, UserPrivacyControllerEnum } from '../../dependency/value/database.enum.js';
@@ -63,16 +64,20 @@ class UserService {
       if (!user) throw this.notFound();
       return { messageCode: 415, data: user };
     } catch (error) {
-
       if ((error as { code?: number }).code === 11000) throw new ConflictException('Username taken', { messageCode: 424 });
       throw error;
     }
   };
 
   changeImage = async (field: 'image' | 'coverImage', file: Express.Multer.File, payload: JwtPayload): Promise<IHandlerResult> => {
-    const user = await userRepository.findByIdAndUpdate(utilService.currentUserId(payload), { $set: { [field]: file.path } });
-    if (!user) throw this.notFound();
-    return { messageCode: 415, data: { [field]: user[field] } };
+    // Read the previous value so the replaced file can be removed once the new path is saved.
+    const previous = await userRepository.findByIdAndUpdate(utilService.currentUserId(payload), { $set: { [field]: file.path } }, { returnDocument: 'before' });
+    if (!previous) {
+      await storageService.removeFile(file.path);
+      throw this.notFound();
+    }
+    if (previous[field] && previous[field] !== file.path) await storageService.removeFile(previous[field]);
+    return { messageCode: 415, data: { [field]: file.path } };
   };
 
   getProfile = async (userId: string, payload: JwtPayload): Promise<IHandlerResult> => {

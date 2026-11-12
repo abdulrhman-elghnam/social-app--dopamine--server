@@ -8,7 +8,7 @@ POST {{Host}}/auth/register
 Content-Type: application/json
 Accept-Language: {{AcceptLanguage}}
 
-{ "email": "abdulrhman.mohamed.atya@gmail.com", "username": "test_user", "password": "Password1!", "confirmPassword": "Password1!", "fullName": "Test User", "gender": "MALE", "phoneNumber": "+201012345678", "DOB": "2000-01-01" }
+{ "email": "zjr8oo@gmail.com", "username": "test_user", "password": "Password1!", "confirmPassword": "Password1!", "fullName": "Test User", "gender": "MALE", "phoneNumber": "+201012345678", "DOB": "2000-01-01" }
 
 ### Verify email OTP
 POST {{Host}}/auth/verify-otp

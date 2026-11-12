@@ -11,13 +11,13 @@ import { SocketEvents } from '../../realtime/socket.events.js';
 import { conversationService } from './conversation.service.js';
 import type { DeleteMessageInput, EditMessageInput, SendMessageInput } from './dto/message.dto.js';
 
-/** Message lifecycle driven by socket events (`message:send|edit|delete`). */
+
 class MessageService {
   private findOwnMessage = async (messageId: string, userId: Types.ObjectId) => {
     const message = await messageRepository.findOne({ filter: { _id: utilService.toObjectId(messageId), deletedAt: { $exists: false } } });
     if (!message) throw new NotFoundException('Message not found', { messageCode: 1212 });
     if (!message.sender.equals(userId)) throw new ForbiddenException('Not your message', { messageCode: 1213 });
-    // Still a member? (removed members can't rewrite history)
+
     const { conversation } = await conversationService.findMembership(message.conversation, userId);
     return { message, conversation };
   };
@@ -61,7 +61,6 @@ class MessageService {
     const payload = { ...message.toObject(), clientId: input.clientId };
     socketGateway.emitToConversationMembers(conversation._id, conversation.participants, SocketEvents.MESSAGE_NEW, payload);
 
-    // Anyone with an open socket has received it; tell the sender.
     const recipients = conversation.participants.filter((id) => !id.equals(sender));
     const online = socketGateway.onlineAmong(recipients).map((id) => utilService.toObjectId(id));
     if (online.length) {

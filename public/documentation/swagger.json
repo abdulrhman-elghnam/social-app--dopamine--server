@@ -57,9 +57,7 @@
   "paths": {
     "/health": {
       "get": {
-        "tags": [
-          "System"
-        ],
+        "tags": ["System"],
         "summary": "Liveness check (does not touch the database)",
         "operationId": "getHealth",
         "parameters": [
@@ -92,9 +90,7 @@
     },
     "/": {
       "get": {
-        "tags": [
-          "System"
-        ],
+        "tags": ["System"],
         "summary": "Welcome message",
         "operationId": "get",
         "parameters": [
@@ -131,9 +127,7 @@
     },
     "/auth/register": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Create an account",
         "operationId": "postAuthRegister",
         "description": "Emails a 6-digit code; verify it with `POST /auth/verify-otp` before signing in. Rate limited (10 failed / 15 min).",
@@ -210,10 +204,7 @@
                   },
                   "gender": {
                     "type": "string",
-                    "enum": [
-                      "MALE",
-                      "FEMALE"
-                    ]
+                    "enum": ["MALE", "FEMALE"]
                   },
                   "phoneNumber": {
                     "type": "string",
@@ -221,16 +212,7 @@
                   },
                   "DOB": {}
                 },
-                "required": [
-                  "email",
-                  "username",
-                  "password",
-                  "confirmPassword",
-                  "fullName",
-                  "gender",
-                  "phoneNumber",
-                  "DOB"
-                ]
+                "required": ["email", "username", "password", "confirmPassword", "fullName", "gender", "phoneNumber", "DOB"]
               },
               "example": {
                 "fullName": "Mona Ahmed",
@@ -249,9 +231,7 @@
     },
     "/auth/verify-otp": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Verify email with the emailed code",
         "operationId": "postAuthVerifyOtp",
         "description": "Rate limited (10 / 15 min, shared with the other code endpoints).",
@@ -306,10 +286,7 @@
                     "pattern": "^\\d{6}$"
                   }
                 },
-                "required": [
-                  "email",
-                  "otp"
-                ]
+                "required": ["email", "otp"]
               },
               "example": {
                 "email": "mona@example.com",
@@ -322,9 +299,7 @@
     },
     "/auth/login": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Sign in with email and password",
         "operationId": "postAuthLogin",
         "description": "Returns an access + refresh token pair. Rate limited (10 failed / 15 min).",
@@ -384,10 +359,7 @@
                     "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$"
                   }
                 },
-                "required": [
-                  "email",
-                  "password"
-                ]
+                "required": ["email", "password"]
               },
               "example": {
                 "email": "mona@example.com",
@@ -400,9 +372,7 @@
     },
     "/auth/google": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Sign in or sign up with a Google ID token",
         "operationId": "postAuthGoogle",
         "parameters": [
@@ -456,9 +426,7 @@
                     "minLength": 1
                   }
                 },
-                "required": [
-                  "idToken"
-                ]
+                "required": ["idToken"]
               },
               "example": {
                 "idToken": "<google-id-token>"
@@ -470,9 +438,7 @@
     },
     "/auth/refresh": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Rotate tokens",
         "operationId": "postAuthRefresh",
         "description": "Single use: the refresh token is revoked and a new pair is returned. Rate limited (30 / 15 min).",
@@ -531,9 +497,7 @@
                     "minLength": 1
                   }
                 },
-                "required": [
-                  "refreshToken"
-                ]
+                "required": ["refreshToken"]
               },
               "example": {
                 "refreshToken": "665f1c2ab3e4d5f6a7b8c9d0"
@@ -545,9 +509,7 @@
     },
     "/auth/logout": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Sign out",
         "operationId": "postAuthLogout",
         "description": "`type: \"SINGLE\"` (default) revokes this session (+ the given refresh token); `\"ALL\"` revokes every session.",
@@ -601,10 +563,7 @@
                   "type": {
                     "default": "SINGLE",
                     "type": "string",
-                    "enum": [
-                      "SINGLE",
-                      "ALL"
-                    ]
+                    "enum": ["SINGLE", "ALL"]
                   },
                   "refreshToken": {
                     "type": "string",
@@ -624,9 +583,7 @@
     },
     "/auth/forgot-password": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Email a password-reset code",
         "operationId": "postAuthForgotPassword",
         "parameters": [
@@ -679,9 +636,7 @@
                     "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
                   }
                 },
-                "required": [
-                  "email"
-                ]
+                "required": ["email"]
               },
               "example": {
                 "email": "mona@example.com"
@@ -693,9 +648,7 @@
     },
     "/auth/verify-forgot-password": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Check a password-reset code",
         "operationId": "postAuthVerifyForgotPassword",
         "parameters": [
@@ -749,10 +702,7 @@
                     "pattern": "^\\d{6}$"
                   }
                 },
-                "required": [
-                  "email",
-                  "otp"
-                ]
+                "required": ["email", "otp"]
               },
               "example": {
                 "email": "mona@example.com",
@@ -765,9 +715,7 @@
     },
     "/auth/change-password": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Set a new password with the reset code",
         "operationId": "postAuthChangePassword",
         "description": "Signs out every session.",
@@ -832,12 +780,7 @@
                     "minLength": 1
                   }
                 },
-                "required": [
-                  "email",
-                  "otp",
-                  "password",
-                  "confirmPassword"
-                ]
+                "required": ["email", "otp", "password", "confirmPassword"]
               },
               "example": {
                 "email": "mona@example.com",
@@ -852,9 +795,7 @@
     },
     "/users/me": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Your full profile",
         "operationId": "getUsersMe",
         "parameters": [
@@ -899,9 +840,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Update your profile",
         "operationId": "patchUsersMe",
         "description": "Send at least one field.",
@@ -984,17 +923,11 @@
                   "DOB": {},
                   "gender": {
                     "type": "string",
-                    "enum": [
-                      "MALE",
-                      "FEMALE"
-                    ]
+                    "enum": ["MALE", "FEMALE"]
                   },
                   "privacyController": {
                     "type": "string",
-                    "enum": [
-                      "private",
-                      "public"
-                    ]
+                    "enum": ["private", "public"]
                   }
                 },
                 "additionalProperties": false
@@ -1010,9 +943,7 @@
     },
     "/users/me/avatar": {
       "patch": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Upload your avatar",
         "operationId": "patchUsersMeAvatar",
         "description": "Multipart field `avatar`: JPEG/PNG, max 5 MB. Rate limited (10 / hour).",
@@ -1070,9 +1001,7 @@
             "multipart/form-data": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "avatar"
-                ],
+                "required": ["avatar"],
                 "properties": {
                   "avatar": {
                     "type": "string",
@@ -1087,9 +1016,7 @@
     },
     "/users/me/cover-image": {
       "patch": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Upload your cover image",
         "operationId": "patchUsersMeCoverImage",
         "description": "Multipart field `coverImage`: JPEG/PNG, max 5 MB. Rate limited (10 / hour).",
@@ -1147,9 +1074,7 @@
             "multipart/form-data": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "coverImage"
-                ],
+                "required": ["coverImage"],
                 "properties": {
                   "coverImage": {
                     "type": "string",
@@ -1164,9 +1089,7 @@
     },
     "/users/search": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Search users by name or username",
         "operationId": "getUsersSearch",
         "parameters": [
@@ -1257,9 +1180,7 @@
     },
     "/users/me/blocked": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Users you have blocked",
         "operationId": "getUsersMeBlocked",
         "description": "Newest first. Unblock with `DELETE /users/{userId}/block`.",
@@ -1340,9 +1261,7 @@
     },
     "/users/suggestions": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "People you may know",
         "operationId": "getUsersSuggestions",
         "parameters": [
@@ -1422,9 +1341,7 @@
     },
     "/users/{userId}": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "A user profile with your relationship to it",
         "operationId": "getUsersByUserId",
         "description": "Private accounts you do not follow return a limited card (`isRestricted: true`). Blocked users look like 404.",
@@ -1490,9 +1407,7 @@
     },
     "/users/{userId}/followers": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Followers",
         "operationId": "getUsersByUserIdFollowers",
         "description": "403 for private accounts you do not follow.",
@@ -1588,9 +1503,7 @@
     },
     "/users/{userId}/following": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Following",
         "operationId": "getUsersByUserIdFollowing",
         "description": "403 for private accounts you do not follow.",
@@ -1686,9 +1599,7 @@
     },
     "/users/{userId}/posts": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "A user's posts",
         "operationId": "getUsersByUserIdPosts",
         "description": "Filtered by visibility; 403 for private accounts you do not follow.",
@@ -1784,9 +1695,7 @@
     },
     "/users/{userId}/block": {
       "post": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Block a user",
         "operationId": "postUsersByUserIdBlock",
         "description": "Hides both users from each other everywhere and removes follows both ways.",
@@ -1860,9 +1769,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Unblock a user",
         "operationId": "deleteUsersByUserIdBlock",
         "parameters": [
@@ -1937,9 +1844,7 @@
     },
     "/users/{userId}/follow": {
       "delete": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Unfollow a user",
         "operationId": "deleteUsersByUserIdFollow",
         "parameters": [
@@ -2014,9 +1919,7 @@
     },
     "/follow-requests/received": {
       "get": {
-        "tags": [
-          "Follow requests"
-        ],
+        "tags": ["Follow requests"],
         "summary": "Pending requests to you",
         "operationId": "getFollowRequestsReceived",
         "parameters": [
@@ -2096,9 +1999,7 @@
     },
     "/follow-requests/sent": {
       "get": {
-        "tags": [
-          "Follow requests"
-        ],
+        "tags": ["Follow requests"],
         "summary": "Your pending requests",
         "operationId": "getFollowRequestsSent",
         "parameters": [
@@ -2178,9 +2079,7 @@
     },
     "/follow-requests/{userId}": {
       "post": {
-        "tags": [
-          "Follow requests"
-        ],
+        "tags": ["Follow requests"],
         "summary": "Follow a user",
         "operationId": "postFollowRequestsByUserId",
         "description": "Public accounts are followed at once (`status: \"following\"`); private ones get a request (`status: \"requested\"`).",
@@ -2269,9 +2168,7 @@
     },
     "/follow-requests/{requestId}/accept": {
       "patch": {
-        "tags": [
-          "Follow requests"
-        ],
+        "tags": ["Follow requests"],
         "summary": "Accept a request",
         "operationId": "patchFollowRequestsByRequestIdAccept",
         "parameters": [
@@ -2336,9 +2233,7 @@
     },
     "/follow-requests/{requestId}/reject": {
       "patch": {
-        "tags": [
-          "Follow requests"
-        ],
+        "tags": ["Follow requests"],
         "summary": "Reject a request",
         "operationId": "patchFollowRequestsByRequestIdReject",
         "parameters": [
@@ -2403,9 +2298,7 @@
     },
     "/follow-requests/{requestId}": {
       "delete": {
-        "tags": [
-          "Follow requests"
-        ],
+        "tags": ["Follow requests"],
         "summary": "Cancel your request",
         "operationId": "deleteFollowRequestsByRequestId",
         "parameters": [
@@ -2467,9 +2360,7 @@
     },
     "/posts": {
       "get": {
-        "tags": [
-          "Posts"
-        ],
+        "tags": ["Posts"],
         "summary": "Home feed",
         "operationId": "getPosts",
         "description": "Your posts plus those of people you follow, newest first.",
@@ -2548,9 +2439,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Posts"
-        ],
+        "tags": ["Posts"],
         "summary": "Create a post",
         "operationId": "postPosts",
         "description": "Rate limited (60 writes / 15 min).",
@@ -2614,19 +2503,13 @@
                   },
                   "visibility": {
                     "type": "string",
-                    "enum": [
-                      "public",
-                      "followers",
-                      "private"
-                    ]
+                    "enum": ["public", "followers", "private"]
                   },
                   "commentsEnabled": {
                     "type": "boolean"
                   }
                 },
-                "required": [
-                  "content"
-                ],
+                "required": ["content"],
                 "additionalProperties": false
               },
               "example": {
@@ -2641,9 +2524,7 @@
     },
     "/posts/{postId}": {
       "get": {
-        "tags": [
-          "Posts"
-        ],
+        "tags": ["Posts"],
         "summary": "A post",
         "operationId": "getPostsByPostId",
         "parameters": [
@@ -2706,9 +2587,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "Posts"
-        ],
+        "tags": ["Posts"],
         "summary": "Edit your post",
         "operationId": "patchPostsByPostId",
         "parameters": [
@@ -2783,11 +2662,7 @@
                   },
                   "visibility": {
                     "type": "string",
-                    "enum": [
-                      "public",
-                      "followers",
-                      "private"
-                    ]
+                    "enum": ["public", "followers", "private"]
                   },
                   "commentsEnabled": {
                     "type": "boolean"
@@ -2804,9 +2679,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Posts"
-        ],
+        "tags": ["Posts"],
         "summary": "Delete your post",
         "operationId": "deletePostsByPostId",
         "description": "Soft delete; its comments go with it.",
@@ -2869,9 +2742,7 @@
     },
     "/posts/{postId}/like": {
       "post": {
-        "tags": [
-          "Posts"
-        ],
+        "tags": ["Posts"],
         "summary": "Like a post",
         "operationId": "postPostsByPostIdLike",
         "parameters": [
@@ -2948,9 +2819,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Posts"
-        ],
+        "tags": ["Posts"],
         "summary": "Unlike a post",
         "operationId": "deletePostsByPostIdLike",
         "parameters": [
@@ -3029,9 +2898,7 @@
     },
     "/posts/{postId}/save": {
       "post": {
-        "tags": [
-          "Posts"
-        ],
+        "tags": ["Posts"],
         "summary": "Save a post",
         "operationId": "postPostsByPostIdSave",
         "parameters": [
@@ -3104,9 +2971,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Posts"
-        ],
+        "tags": ["Posts"],
         "summary": "Remove from saved",
         "operationId": "deletePostsByPostIdSave",
         "parameters": [
@@ -3181,9 +3046,7 @@
     },
     "/posts/{postId}/share": {
       "post": {
-        "tags": [
-          "Posts"
-        ],
+        "tags": ["Posts"],
         "summary": "Share a post",
         "operationId": "postPostsByPostIdShare",
         "description": "Public posts (or your own) only. Rate limited (60 writes / 15 min).",
@@ -3304,9 +3167,7 @@
     },
     "/posts/{postId}/comments": {
       "get": {
-        "tags": [
-          "Comments"
-        ],
+        "tags": ["Comments"],
         "summary": "Top-level comments of a post",
         "operationId": "getPostsByPostIdComments",
         "parameters": [
@@ -3399,9 +3260,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Comments"
-        ],
+        "tags": ["Comments"],
         "summary": "Comment (or reply with `parentCommentId`)",
         "operationId": "postPostsByPostIdComments",
         "description": "Rate limited (60 writes / 15 min).",
@@ -3483,9 +3342,7 @@
                     "pattern": "^[a-f\\d]{24}$"
                   }
                 },
-                "required": [
-                  "content"
-                ],
+                "required": ["content"],
                 "additionalProperties": false
               },
               "example": {
@@ -3498,9 +3355,7 @@
     },
     "/comments/{commentId}": {
       "patch": {
-        "tags": [
-          "Comments"
-        ],
+        "tags": ["Comments"],
         "summary": "Edit your comment",
         "operationId": "patchCommentsByCommentId",
         "parameters": [
@@ -3574,9 +3429,7 @@
                     "maxLength": 2000
                   }
                 },
-                "required": [
-                  "content"
-                ],
+                "required": ["content"],
                 "additionalProperties": false
               },
               "example": {
@@ -3587,9 +3440,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Comments"
-        ],
+        "tags": ["Comments"],
         "summary": "Delete a comment",
         "operationId": "deleteCommentsByCommentId",
         "description": "Comment author or the post owner. Removes its replies.",
@@ -3665,9 +3516,7 @@
     },
     "/comments/{commentId}/like": {
       "post": {
-        "tags": [
-          "Comments"
-        ],
+        "tags": ["Comments"],
         "summary": "Like a comment",
         "operationId": "postCommentsByCommentIdLike",
         "parameters": [
@@ -3744,9 +3593,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Comments"
-        ],
+        "tags": ["Comments"],
         "summary": "Unlike a comment",
         "operationId": "deleteCommentsByCommentIdLike",
         "parameters": [
@@ -3825,9 +3672,7 @@
     },
     "/comments/{commentId}/replies": {
       "get": {
-        "tags": [
-          "Comments"
-        ],
+        "tags": ["Comments"],
         "summary": "Replies to a comment",
         "operationId": "getCommentsByCommentIdReplies",
         "parameters": [
@@ -3922,9 +3767,7 @@
     },
     "/notifications": {
       "get": {
-        "tags": [
-          "Notifications"
-        ],
+        "tags": ["Notifications"],
         "summary": "Your notifications",
         "operationId": "getNotifications",
         "description": "`meta.unreadCount` carries the unread total. Add `unread=true` for unread only.",
@@ -3962,10 +3805,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "true",
-                "false"
-              ]
+              "enum": ["true", "false"]
             }
           }
         ],
@@ -4029,9 +3869,7 @@
     },
     "/notifications/read-all": {
       "patch": {
-        "tags": [
-          "Notifications"
-        ],
+        "tags": ["Notifications"],
         "summary": "Mark all as read",
         "operationId": "patchNotificationsReadAll",
         "parameters": [
@@ -4086,9 +3924,7 @@
     },
     "/notifications/{id}/read": {
       "patch": {
-        "tags": [
-          "Notifications"
-        ],
+        "tags": ["Notifications"],
         "summary": "Mark one as read",
         "operationId": "patchNotificationsByIdRead",
         "parameters": [
@@ -4163,9 +3999,7 @@
     },
     "/notifications/{id}": {
       "delete": {
-        "tags": [
-          "Notifications"
-        ],
+        "tags": ["Notifications"],
         "summary": "Delete a notification",
         "operationId": "deleteNotificationsById",
         "parameters": [
@@ -4227,9 +4061,7 @@
     },
     "/conversations": {
       "get": {
-        "tags": [
-          "Conversations"
-        ],
+        "tags": ["Conversations"],
         "summary": "Your conversations",
         "operationId": "getConversations",
         "description": "Newest activity first, with `unreadCount` and online participants.",
@@ -4308,9 +4140,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Conversations"
-        ],
+        "tags": ["Conversations"],
         "summary": "Start a direct chat or a group",
         "operationId": "postConversations",
         "description": "Direct: `participantIds: [otherUserId]` (an existing chat is returned instead of a duplicate). Group: `isGroup: true`, a `groupName` and ≥ 2 other people. Rate limited (60 writes / 15 min).",
@@ -4390,15 +4220,11 @@
                     "format": "uri"
                   }
                 },
-                "required": [
-                  "participantIds"
-                ],
+                "required": ["participantIds"],
                 "additionalProperties": false
               },
               "example": {
-                "participantIds": [
-                  "665f1c2ab3e4d5f6a7b8c9d0"
-                ]
+                "participantIds": ["665f1c2ab3e4d5f6a7b8c9d0"]
               }
             }
           }
@@ -4407,9 +4233,7 @@
     },
     "/conversations/{id}": {
       "get": {
-        "tags": [
-          "Conversations"
-        ],
+        "tags": ["Conversations"],
         "summary": "A conversation with your membership",
         "operationId": "getConversationsById",
         "parameters": [
@@ -4472,9 +4296,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "Conversations"
-        ],
+        "tags": ["Conversations"],
         "summary": "Update a group (admins)",
         "operationId": "patchConversationsById",
         "description": "Rename, change image, add or remove members. The owner cannot be removed.",
@@ -4583,9 +4405,7 @@
     },
     "/conversations/{id}/messages": {
       "get": {
-        "tags": [
-          "Conversations"
-        ],
+        "tags": ["Conversations"],
         "summary": "Messages, newest first",
         "operationId": "getConversationsByIdMessages",
         "parameters": [
@@ -4680,9 +4500,7 @@
     },
     "/conversations/{id}/mute": {
       "patch": {
-        "tags": [
-          "Conversations"
-        ],
+        "tags": ["Conversations"],
         "summary": "Mute or unmute",
         "operationId": "patchConversationsByIdMute",
         "parameters": [
@@ -4764,9 +4582,7 @@
                     "type": "boolean"
                   }
                 },
-                "required": [
-                  "muted"
-                ],
+                "required": ["muted"],
                 "additionalProperties": false
               },
               "example": {
@@ -4779,9 +4595,7 @@
     },
     "/conversations/{id}/read": {
       "patch": {
-        "tags": [
-          "Conversations"
-        ],
+        "tags": ["Conversations"],
         "summary": "Mark as read (up to `messageId`, or everything)",
         "operationId": "patchConversationsByIdRead",
         "parameters": [
@@ -4864,9 +4678,7 @@
     },
     "/reports": {
       "post": {
-        "tags": [
-          "Reports"
-        ],
+        "tags": ["Reports"],
         "summary": "Report a user, post or comment",
         "operationId": "postReports",
         "description": "409 if you already have an open report for it. Rate limited (60 writes / 15 min).",
@@ -4925,11 +4737,7 @@
                 "properties": {
                   "targetType": {
                     "type": "string",
-                    "enum": [
-                      "user",
-                      "post",
-                      "comment"
-                    ]
+                    "enum": ["user", "post", "comment"]
                   },
                   "targetId": {
                     "type": "string",
@@ -4945,11 +4753,7 @@
                     "maxLength": 1000
                   }
                 },
-                "required": [
-                  "targetType",
-                  "targetId",
-                  "reason"
-                ],
+                "required": ["targetType", "targetId", "reason"],
                 "additionalProperties": false
               },
               "example": {
@@ -4963,9 +4767,7 @@
         }
       },
       "get": {
-        "tags": [
-          "Reports"
-        ],
+        "tags": ["Reports"],
         "summary": "All reports (admin)",
         "operationId": "getReports",
         "parameters": [
@@ -5002,12 +4804,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "pending",
-                "reviewed",
-                "resolved",
-                "rejected"
-              ]
+              "enum": ["pending", "reviewed", "resolved", "rejected"]
             },
             "example": "pending"
           },
@@ -5017,11 +4814,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "user",
-                "post",
-                "comment"
-              ]
+              "enum": ["user", "post", "comment"]
             }
           }
         ],
@@ -5077,9 +4870,7 @@
     },
     "/reports/{id}": {
       "get": {
-        "tags": [
-          "Reports"
-        ],
+        "tags": ["Reports"],
         "summary": "A report (admin, or the reporter)",
         "operationId": "getReportsById",
         "description": "Other users get 404.",
@@ -5145,9 +4936,7 @@
     },
     "/reports/{id}/review": {
       "patch": {
-        "tags": [
-          "Reports"
-        ],
+        "tags": ["Reports"],
         "summary": "Review a report (admin)",
         "operationId": "patchReportsByIdReview",
         "parameters": [
@@ -5218,16 +5007,10 @@
                 "properties": {
                   "status": {
                     "type": "string",
-                    "enum": [
-                      "reviewed",
-                      "resolved",
-                      "rejected"
-                    ]
+                    "enum": ["reviewed", "resolved", "rejected"]
                   }
                 },
-                "required": [
-                  "status"
-                ],
+                "required": ["status"],
                 "additionalProperties": false
               },
               "example": {
@@ -5255,10 +5038,7 @@
         "required": false,
         "schema": {
           "type": "string",
-          "enum": [
-            "en",
-            "ar"
-          ],
+          "enum": ["en", "ar"],
           "default": "en"
         },
         "description": "Language of `message` / `errorMessage`."
@@ -5356,10 +5136,7 @@
       },
       "Tokens": {
         "type": "object",
-        "required": [
-          "access_token",
-          "refresh_token"
-        ],
+        "required": ["access_token", "refresh_token"],
         "properties": {
           "access_token": {
             "type": "string",
@@ -5407,10 +5184,7 @@
               },
               "privacyController": {
                 "type": "string",
-                "enum": [
-                  "public",
-                  "private"
-                ]
+                "enum": ["public", "private"]
               },
               "followersCount": {
                 "type": "integer"
@@ -5547,11 +5321,7 @@
           },
           "visibility": {
             "type": "string",
-            "enum": [
-              "public",
-              "followers",
-              "private"
-            ]
+            "enum": ["public", "followers", "private"]
           },
           "likesCount": {
             "type": "integer"
@@ -5692,11 +5462,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "pending",
-              "accepted",
-              "rejected"
-            ]
+            "enum": ["pending", "accepted", "rejected"]
           },
           "createdAt": {
             "type": "string",
@@ -5736,16 +5502,7 @@
           },
           "type": {
             "type": "string",
-            "enum": [
-              "follow",
-              "follow_request",
-              "follow_accepted",
-              "like",
-              "comment",
-              "reply",
-              "comment_like",
-              "share"
-            ]
+            "enum": ["follow", "follow_request", "follow_accepted", "like", "comment", "reply", "comment_like", "share"]
           },
           "post": {
             "type": "string",
@@ -5845,13 +5602,7 @@
           },
           "type": {
             "type": "string",
-            "enum": [
-              "text",
-              "image",
-              "video",
-              "audio",
-              "file"
-            ]
+            "enum": ["text", "image", "video", "audio", "file"]
           },
           "replyTo": {
             "oneOf": [
@@ -5953,11 +5704,7 @@
           },
           "role": {
             "type": "string",
-            "enum": [
-              "member",
-              "admin",
-              "owner"
-            ]
+            "enum": ["member", "admin", "owner"]
           },
           "onlineParticipants": {
             "type": "array",
@@ -6048,11 +5795,7 @@
           },
           "targetType": {
             "type": "string",
-            "enum": [
-              "user",
-              "post",
-              "comment"
-            ]
+            "enum": ["user", "post", "comment"]
           },
           "reportedUser": {
             "oneOf": [
@@ -6085,12 +5828,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "pending",
-              "reviewed",
-              "resolved",
-              "rejected"
-            ]
+            "enum": ["pending", "reviewed", "resolved", "rejected"]
           },
           "reviewedBy": {
             "oneOf": [
@@ -6121,9 +5859,7 @@
       },
       "Error": {
         "type": "object",
-        "required": [
-          "errorMessage"
-        ],
+        "required": ["errorMessage"],
         "properties": {
           "errorMessage": {
             "type": "string",

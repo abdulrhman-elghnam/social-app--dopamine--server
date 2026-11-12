@@ -17,14 +17,12 @@ import {
 } from './dto/follow-request.dto.js';
 import { followRequestService } from './follow-request.service.js';
 
-/** Mounted at `/follow-requests`. */
 class FollowRequestController {
   public readonly route: RouterType = Router({ caseSensitive: true, strict: true });
 
   constructor() {
     const auth = authGuard.check(TokenTypeEnum.ACCESS);
 
-    // Static paths first so they are not captured by `/:requestId`.
     this.route.get(
       '/received',
       auth,

@@ -87,13 +87,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
             },
             "description": "Emails a 6-digit code; verify it with `POST /auth/verify-otp` before signing in. Rate limited (10 failed / 15 min).",
             "auth": {
@@ -126,13 +121,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/verify-otp",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "verify-otp"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-otp"]
             },
             "description": "Rate limited (10 / 15 min, shared with the other code endpoints).",
             "auth": {
@@ -165,13 +155,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
             },
             "description": "Returns an access + refresh token pair. Rate limited (10 failed / 15 min).",
             "auth": {
@@ -217,13 +202,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/google",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "google"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "google"]
             },
             "description": "",
             "auth": {
@@ -269,13 +249,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "refresh"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
             },
             "description": "Single use: the refresh token is revoked and a new pair is returned. Rate limited (30 / 15 min).",
             "body": {
@@ -318,13 +293,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/logout",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "logout"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
             },
             "description": "`type: \"SINGLE\"` (default) revokes this session (+ the given refresh token); `\"ALL\"` revokes every session.",
             "body": {
@@ -354,13 +324,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/forgot-password",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "forgot-password"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
             },
             "description": "",
             "auth": {
@@ -393,13 +358,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/verify-forgot-password",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "verify-forgot-password"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-forgot-password"]
             },
             "description": "",
             "auth": {
@@ -432,13 +392,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/change-password",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "change-password"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "change-password"]
             },
             "description": "Signs out every session.",
             "auth": {
@@ -473,13 +428,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
             },
             "description": ""
           },
@@ -488,10 +438,7 @@
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": [
-                  "const body = pm.response.json();",
-                  "try { const v = body.data._id; if (v) pm.collectionVariables.set('userId', v); } catch (e) {}"
-                ]
+                "exec": ["const body = pm.response.json();", "try { const v = body.data._id; if (v) pm.collectionVariables.set('userId', v); } catch (e) {}"]
               }
             }
           ]
@@ -512,13 +459,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
             },
             "description": "Send at least one field.",
             "body": {
@@ -544,14 +486,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/me/avatar",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "me",
-                "avatar"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me", "avatar"]
             },
             "description": "Multipart field `avatar`: JPEG/PNG, max 5 MB. Rate limited (10 / hour).",
             "body": {
@@ -578,14 +514,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/me/cover-image",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "me",
-                "cover-image"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me", "cover-image"]
             },
             "description": "Multipart field `coverImage`: JPEG/PNG, max 5 MB. Rate limited (10 / hour).",
             "body": {
@@ -612,13 +542,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/search?q=mona&page=1&size=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "search"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "search"],
               "query": [
                 {
                   "key": "q",
@@ -649,14 +574,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/me/blocked?page=1&size=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "me",
-                "blocked"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me", "blocked"],
               "query": [
                 {
                   "key": "page",
@@ -683,13 +602,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/suggestions?page=1&size=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "suggestions"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "suggestions"],
               "query": [
                 {
                   "key": "page",
@@ -716,13 +630,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/{{userId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
             },
             "description": "Private accounts you do not follow return a limited card (`isRestricted: true`). Blocked users look like 404."
           }
@@ -739,14 +648,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/{{userId}}/followers?page=1&size=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}",
-                "followers"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "followers"],
               "query": [
                 {
                   "key": "page",
@@ -773,14 +676,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/{{userId}}/following?page=1&size=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}",
-                "following"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "following"],
               "query": [
                 {
                   "key": "page",
@@ -807,14 +704,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/{{userId}}/posts?page=1&size=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}",
-                "posts"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "posts"],
               "query": [
                 {
                   "key": "page",
@@ -841,14 +732,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/{{userId}}/block",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}",
-                "block"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "block"]
             },
             "description": "Hides both users from each other everywhere and removes follows both ways."
           }
@@ -865,14 +750,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/{{userId}}/block",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}",
-                "block"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "block"]
             },
             "description": ""
           }
@@ -889,14 +768,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/{{userId}}/follow",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}",
-                "follow"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "follow"]
             },
             "description": ""
           }
@@ -919,13 +792,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/follow-requests/received?page=1&size=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "follow-requests",
-                "received"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["follow-requests", "received"],
               "query": [
                 {
                   "key": "page",
@@ -964,13 +832,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/follow-requests/sent?page=1&size=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "follow-requests",
-                "sent"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["follow-requests", "sent"],
               "query": [
                 {
                   "key": "page",
@@ -997,13 +860,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/follow-requests/{{userId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "follow-requests",
-                "{{userId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["follow-requests", "{{userId}}"]
             },
             "description": "Public accounts are followed at once (`status: \"following\"`); private ones get a request (`status: \"requested\"`)."
           }
@@ -1020,14 +878,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/follow-requests/{{requestId}}/accept",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "follow-requests",
-                "{{requestId}}",
-                "accept"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["follow-requests", "{{requestId}}", "accept"]
             },
             "description": ""
           }
@@ -1044,14 +896,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/follow-requests/{{requestId}}/reject",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "follow-requests",
-                "{{requestId}}",
-                "reject"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["follow-requests", "{{requestId}}", "reject"]
             },
             "description": ""
           }
@@ -1068,13 +914,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/follow-requests/{{requestId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "follow-requests",
-                "{{requestId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["follow-requests", "{{requestId}}"]
             },
             "description": ""
           }
@@ -1097,12 +938,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/posts?page=1&size=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "posts"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"],
               "query": [
                 {
                   "key": "page",
@@ -1133,12 +970,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/posts",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "posts"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"]
             },
             "description": "Rate limited (60 writes / 15 min).",
             "body": {
@@ -1156,10 +989,7 @@
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": [
-                  "const body = pm.response.json();",
-                  "try { const v = body.data._id; if (v) pm.collectionVariables.set('postId', v); } catch (e) {}"
-                ]
+                "exec": ["const body = pm.response.json();", "try { const v = body.data._id; if (v) pm.collectionVariables.set('postId', v); } catch (e) {}"]
               }
             }
           ]
@@ -1176,13 +1006,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/posts/{{postId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "posts",
-                "{{postId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}"]
             },
             "description": ""
           }
@@ -1203,13 +1028,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/posts/{{postId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "posts",
-                "{{postId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}"]
             },
             "description": "",
             "body": {
@@ -1235,13 +1055,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/posts/{{postId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "posts",
-                "{{postId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}"]
             },
             "description": "Soft delete; its comments go with it."
           }
@@ -1258,14 +1073,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/posts/{{postId}}/like",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "posts",
-                "{{postId}}",
-                "like"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "like"]
             },
             "description": ""
           }
@@ -1282,14 +1091,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/posts/{{postId}}/like",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "posts",
-                "{{postId}}",
-                "like"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "like"]
             },
             "description": ""
           }
@@ -1306,14 +1109,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/posts/{{postId}}/save",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "posts",
-                "{{postId}}",
-                "save"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "save"]
             },
             "description": ""
           }
@@ -1330,14 +1127,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/posts/{{postId}}/save",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "posts",
-                "{{postId}}",
-                "save"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "save"]
             },
             "description": ""
           }
@@ -1358,14 +1149,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/posts/{{postId}}/share",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "posts",
-                "{{postId}}",
-                "share"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "share"]
             },
             "description": "Public posts (or your own) only. Rate limited (60 writes / 15 min).",
             "body": {
@@ -1397,14 +1182,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/posts/{{postId}}/comments?page=1&size=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "posts",
-                "{{postId}}",
-                "comments"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "comments"],
               "query": [
                 {
                   "key": "page",
@@ -1435,14 +1214,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/posts/{{postId}}/comments",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "posts",
-                "{{postId}}",
-                "comments"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "comments"]
             },
             "description": "Rate limited (60 writes / 15 min).",
             "body": {
@@ -1460,10 +1233,7 @@
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": [
-                  "const body = pm.response.json();",
-                  "try { const v = body.data._id; if (v) pm.collectionVariables.set('commentId', v); } catch (e) {}"
-                ]
+                "exec": ["const body = pm.response.json();", "try { const v = body.data._id; if (v) pm.collectionVariables.set('commentId', v); } catch (e) {}"]
               }
             }
           ]
@@ -1484,13 +1254,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/comments/{{commentId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "comments",
-                "{{commentId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["comments", "{{commentId}}"]
             },
             "description": "",
             "body": {
@@ -1516,13 +1281,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/comments/{{commentId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "comments",
-                "{{commentId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["comments", "{{commentId}}"]
             },
             "description": "Comment author or the post owner. Removes its replies."
           }
@@ -1539,14 +1299,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/comments/{{commentId}}/like",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "comments",
-                "{{commentId}}",
-                "like"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["comments", "{{commentId}}", "like"]
             },
             "description": ""
           }
@@ -1563,14 +1317,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/comments/{{commentId}}/like",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "comments",
-                "{{commentId}}",
-                "like"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["comments", "{{commentId}}", "like"]
             },
             "description": ""
           }
@@ -1587,14 +1335,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/comments/{{commentId}}/replies?page=1&size=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "comments",
-                "{{commentId}}",
-                "replies"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["comments", "{{commentId}}", "replies"],
               "query": [
                 {
                   "key": "page",
@@ -1627,12 +1369,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/notifications?page=1&size=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "notifications"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"],
               "query": [
                 {
                   "key": "page",
@@ -1671,13 +1409,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/notifications/read-all",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "notifications",
-                "read-all"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "read-all"]
             },
             "description": ""
           }
@@ -1694,14 +1427,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/notifications/{{notificationId}}/read",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "notifications",
-                "{{notificationId}}",
-                "read"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "{{notificationId}}", "read"]
             },
             "description": ""
           }
@@ -1718,13 +1445,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/notifications/{{notificationId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "notifications",
-                "{{notificationId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "{{notificationId}}"]
             },
             "description": ""
           }
@@ -1747,12 +1469,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/conversations?page=1&size=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "conversations"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations"],
               "query": [
                 {
                   "key": "page",
@@ -1783,12 +1501,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/conversations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "conversations"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations"]
             },
             "description": "Direct: `participantIds: [otherUserId]` (an existing chat is returned instead of a duplicate). Group: `isGroup: true`, a `groupName` and ≥ 2 other people. Rate limited (60 writes / 15 min).",
             "body": {
@@ -1826,13 +1540,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/conversations/{{conversationId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "conversations",
-                "{{conversationId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations", "{{conversationId}}"]
             },
             "description": ""
           }
@@ -1853,13 +1562,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/conversations/{{conversationId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "conversations",
-                "{{conversationId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations", "{{conversationId}}"]
             },
             "description": "Rename, change image, add or remove members. The owner cannot be removed.",
             "body": {
@@ -1885,14 +1589,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/conversations/{{conversationId}}/messages?page=1&size=30",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "conversations",
-                "{{conversationId}}",
-                "messages"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations", "{{conversationId}}", "messages"],
               "query": [
                 {
                   "key": "page",
@@ -1923,14 +1621,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/conversations/{{conversationId}}/mute",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "conversations",
-                "{{conversationId}}",
-                "mute"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations", "{{conversationId}}", "mute"]
             },
             "description": "",
             "body": {
@@ -1960,14 +1652,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/conversations/{{conversationId}}/read",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "conversations",
-                "{{conversationId}}",
-                "read"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["conversations", "{{conversationId}}", "read"]
             },
             "description": "",
             "body": {
@@ -2003,12 +1689,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/reports",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reports"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["reports"]
             },
             "description": "409 if you already have an open report for it. Rate limited (60 writes / 15 min).",
             "body": {
@@ -2026,10 +1708,7 @@
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": [
-                  "const body = pm.response.json();",
-                  "try { const v = body.data._id; if (v) pm.collectionVariables.set('reportId', v); } catch (e) {}"
-                ]
+                "exec": ["const body = pm.response.json();", "try { const v = body.data._id; if (v) pm.collectionVariables.set('reportId', v); } catch (e) {}"]
               }
             }
           ]
@@ -2046,12 +1725,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/reports?page=1&size=20&status=pending",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reports"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["reports"],
               "query": [
                 {
                   "key": "page",
@@ -2082,13 +1757,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/reports/{{reportId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reports",
-                "{{reportId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", "{{reportId}}"]
             },
             "description": "Other users get 404."
           }
@@ -2109,14 +1779,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/reports/{{reportId}}/review",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reports",
-                "{{reportId}}",
-                "review"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", "{{reportId}}", "review"]
             },
             "description": "Requires an admin access token.",
             "body": {
@@ -2148,12 +1812,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/health",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "health"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
             },
             "description": "",
             "auth": {
@@ -2173,9 +1833,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": []
             },
             "description": "",

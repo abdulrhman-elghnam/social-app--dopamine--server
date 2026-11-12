@@ -27,7 +27,6 @@ import {
   type SignupBody,
 } from './dto/authentication.dto.js';
 
-
 export class AuthenticationController {
   public readonly route: RouterType = Router({ caseSensitive: true, strict: true });
   constructor() {

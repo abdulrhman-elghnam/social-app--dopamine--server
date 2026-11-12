@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { extname, resolve } from 'node:path';
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
+import { extname, relative, resolve } from 'node:path';
 import type { NextFunction, Request, Response } from 'express';
 import multer from 'multer';
 import type { FileFilterCallback } from 'multer';
@@ -33,6 +33,15 @@ interface ProcessFieldsOptions extends StorageOptions {
 const invalidFormatError = () => new BadRequestException('Invalid file format', { messageCode: 603 });
 
 export class StorageService {
+  removeFile = async (path?: string | null): Promise<void> => {
+    if (!path) return;
+    const root = resolve('assets');
+    const target = resolve(path.replace(/^\.?\//, ''));
+    const inside = relative(root, target);
+    if (!inside || inside.startsWith('..') || resolve(root, inside) !== target) return;
+    await unlink(target).catch(() => undefined);
+  };
+
   localFileStorage = ({ maxFileSize = 5, validation = [], customPath = 'general' }: StorageOptions = {}) => {
     const destination = `./assets/${customPath}`;
 
@@ -70,6 +79,7 @@ export class StorageService {
     const result = await fileTypeFromBuffer(buffer);
 
     if (!result || !validation.includes(result.mime)) {
+      if (!file.buffer) await this.removeFile(file.path);
       throw invalidFormatError();
     }
 
