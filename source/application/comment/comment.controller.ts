@@ -25,7 +25,6 @@ import { commentService } from './comment.service.js';
 const auth = authGuard.check(TokenTypeEnum.ACCESS);
 const commentId = (req: Request) => (req.validated!.params as CommentIdParams).commentId;
 
-/** Mounted at `/posts/:postId/comments` — `mergeParams` exposes `postId` from the parent path. */
 class PostCommentController {
   public readonly route: RouterType = Router({ caseSensitive: true, strict: true, mergeParams: true });
 
@@ -53,7 +52,7 @@ class PostCommentController {
   }
 }
 
-/** Mounted at `/comments` — operations addressed by comment id alone. */
+
 class CommentController {
   public readonly route: RouterType = Router({ caseSensitive: true, strict: true });
 

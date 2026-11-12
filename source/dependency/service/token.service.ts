@@ -65,7 +65,6 @@ export class TokenService {
     return payload;
   }
 
-  /** Reads claims without verifying the signature (null when malformed). Never trust it for auth. */
   decodeUnverified(token: string): JwtPayload | null {
     const payload = jwt.decode(token.replace(/^Bearer\s+/i, '').trim());
     return payload && typeof payload !== 'string' ? payload : null;

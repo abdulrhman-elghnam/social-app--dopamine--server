@@ -139,7 +139,6 @@ export class AuthService {
     return { status: 201, messageCode: 104 };
   };
 
-  /** Final step of the forgot-password flow — the OTP from the email is required again. */
   changePassword = async (payload: ChangePasswordBody): Promise<IHandlerResult> => {
     const email = payload.email.toLowerCase();
     const cachedOtp = await cacheService.getCache<number>(RedisKeys.otpKey(email));
@@ -192,7 +191,6 @@ export class AuthService {
     return { messageCode: 107 };
   };
 
-  /** Revokes this session's access token (+ the given refresh token), or every session with `ALL`. */
   logout = async (body: LogoutBody, payload: JwtPayload): Promise<IHandlerResult> => {
     const userId = payload.sub as string;
 
@@ -204,7 +202,6 @@ export class AuthService {
     await tokenService.revokeToken(userId, payload.jti as string);
     if (body.refreshToken) {
       const refresh = tokenService.decodeUnverified(body.refreshToken);
-      // Only ever revoke the caller's own refresh token.
       if (refresh?.sub === userId && refresh.jti) await tokenService.revokeToken(userId, refresh.jti);
     }
     return { messageCode: 310 };

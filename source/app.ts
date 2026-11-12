@@ -50,7 +50,6 @@ const requireServices: RequestHandler = async (_req, _res, next) => {
 };
 
 function trustProxySetting(): number | boolean {
-  if (isVercel) return 1;
   const raw = configService.get('TRUST_PROXY', '')?.trim().toLowerCase() ?? '';
   if (raw === 'true') return true;
   const hops = Number.parseInt(raw, 10);
